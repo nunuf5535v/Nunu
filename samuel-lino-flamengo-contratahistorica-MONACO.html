@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Flamengo acerta com Samuel Lino</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      overflow-x: hidden;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 40px 20px;
+      position: relative;
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.04);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      line-height: 1.3;
+      color: #fff;
+    }
+
+    .monaco-tag {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 6px 16px;
+      background: linear-gradient(to right, #e30613, #7f0000);
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    img {
+      width: 100%;
+      border-radius: 12px;
+      margin: 25px 0;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.07);
+    }
+
+    .content h2 {
+      color: #e30613;
+      margin-bottom: 12px;
+      font-size: 22px;
+    }
+
+    .content p {
+      font-size: 16px;
+      line-height: 1.7;
+      margin-bottom: 15px;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 13px;
+      color: #bbb;
+    }
+
+    @media (max-width: 600px) {
+      .header h1 {
+        font-size: 22px;
+      }
+
+      .content p {
+        font-size: 15px;
+      }
+
+      .content h2 {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bubbles"></canvas>
+
+<div class="container">
+  <div class="header">
+    <h1>Flamengo acerta contratação histórica de <br><strong>Samuel Lino</strong></h1>
+    <div class="monaco-tag">Monaco Univers • Esportes</div>
+  </div>
+
+  <img src="https://s2-ge.glbimg.com/vRl1KyICbjt0C0Ie_98q80HPrgk=/0x0:2813x1973/640x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_bc8228b6673f488aa253bbcb03c80ec5/internal_photos/bs/2024/x/C/XxVbqDQEiQAQE2zBc56g/2024-01-28t205659z-529722006-up1ek1s1m6xec-rtrmadp-3-soccer-spain-atm-val-report.jpg" alt="Samuel Lino no Atlético de Madrid" />
+
+  <div class="content">
+    <h2>Negócio histórico</h2>
+    <p>O <strong>Flamengo</strong> chegou a um acordo para contratar <strong>Samuel Lino</strong>, atacante brasileiro que estava no <strong>Atlético de Madrid</strong>. O clube rubro-negro vai pagar cerca de <strong>22 milhões de euros</strong> (R$ 143 milhões), além de bônus por metas, tornando-se a contratação mais cara da história do clube.</p>
+
+    <p>O Flamengo também comprará os direitos econômicos que pertencem ao clube espanhol. A proposta foi bem recebida em Madrid, com parte do pagamento à vista e o restante em duas parcelas — <strong>janeiro e julho de 2026</strong>.</p>
+
+    <h2>Superando recordes</h2>
+    <p>Até então, a contratação mais cara havia sido o meia argentino <strong>Carlos Alcaraz</strong>, adquirido por U$ 20 milhões (R$ 110,6 milhões) em 2024. Porém, Alcaraz não se firmou e foi vendido nesta temporada ao Everton por 15 milhões de euros (R$ 96 milhões), mais 3 milhões em bônus.</p>
+
+    <h2>Disputa com clubes europeus</h2>
+    <p>Outros clubes como <strong>Napoli</strong> e <strong>Sporting</strong> demonstraram interesse por Samuel Lino, mas não igualaram a proposta do Flamengo. A oferta rubro-negra foi decisiva, com condições que agradaram os espanhóis.</p>
+
+    <h2>Objetivo: Seleção Brasileira</h2>
+    <p>Lino preferia seguir na Europa, mas vê o Flamengo como porta de entrada para a <strong>seleção de Carlo Ancelotti</strong>. Revelado na base rubro-negra, ele foi campeão da Copinha em 2018 e retorna em grande estilo.</p>
+  </div>
+
+  <div class="footer">
+    MONACO-UNIVERS • Atualizado em 25/07/2025
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('bubbles')
+  const ctx = canvas.getContext('2d')
+  let width, height
+  const bubbles = []
+
+  function resize() {
+    width = canvas.width = window.innerWidth
+    height = canvas.height = window.innerHeight
+  }
+
+  window.addEventListener('resize', resize)
+  resize()
+
+  class Bubble {
+    constructor() {
+      this.reset()
+    }
+
+    reset() {
+      this.x = Math.random() * width
+      this.y = height + Math.random() * 100
+      this.radius = Math.random() * 8 + 2
+      this.speed = Math.random() * 1.5 + 0.5
+      this.alpha = Math.random() * 0.5 + 0.2
+    }
+
+    update() {
+      this.y -= this.speed
+      if (this.y < -this.radius) this.reset()
+    }
+
+    draw() {
+      ctx.beginPath()
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
+      ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`
+      ctx.fill()
+    }
+  }
+
+  for (let i = 0; i < 80; i++) {
+    bubbles.push(new Bubble())
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, width, height)
+    for (let bubble of bubbles) {
+      bubble.update()
+      bubble.draw()
+    }
+    requestAnimationFrame(animate)
+  }
+
+  animate()
+</script>
+
+</body>
+</html>
