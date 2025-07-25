@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Corinthians • Yuri Alberto 2030</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow-x: hidden;
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 40px 20px;
+      position: relative;
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    .monaco-tag {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 6px 14px;
+      background: linear-gradient(to right, #e30613, #7f0000);
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    img {
+      width: 100%;
+      border-radius: 12px;
+      margin: 20px 0;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.08);
+    }
+
+    .content h2 {
+      color: #e30613;
+      margin-bottom: 10px;
+      font-size: 22px;
+    }
+
+    .content p {
+      font-size: 16px;
+      line-height: 1.7;
+      margin-bottom: 15px;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 13px;
+      color: #bbb;
+    }
+
+    @media (max-width: 600px) {
+      .header h1 {
+        font-size: 22px;
+      }
+
+      .content p {
+        font-size: 15px;
+      }
+
+      .content h2 {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bubbles"></canvas>
+
+<div class="container">
+  <div class="header">
+    <h1>Yuri Alberto renova com o Corinthians até 2030</h1>
+    <div class="monaco-tag">Monaco Univers • Esportes</div>
+  </div>
+
+  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTiL5OkJpRkm7vxKFXzjNGLRNGYHPNeRuylIWoUWHs6_OLZ8gd1fCzKn5_i&s=10" alt="Yuri Alberto no Corinthians">
+
+  <div class="content">
+    <h2>Contrato renovado até julho de 2030!</h2>
+    <p>O <strong>Corinthians</strong> anunciou a renovação de contrato com o atacante <strong>Yuri Alberto</strong>. O novo vínculo estende o anterior (válido até dezembro de 2027) até <strong>julho de 2030</strong>.</p>
+    <p>A <strong>multa rescisória</strong> continua em <strong>R$ 500 milhões</strong> para o mercado nacional e <strong>100 milhões de euros</strong> para o exterior.</p>
+    <p>Yuri está em fase final de recuperação após uma fratura lombar sofrida em maio. Ele pode ser relacionado já neste sábado contra o <strong>Botafogo</strong>, ou na próxima quarta, no clássico contra o <strong>Palmeiras</strong> pela Copa do Brasil.</p>
+  </div>
+
+  <div class="footer">
+   comunidade monaco — São Paulo • Atualizado em 24/07/2025
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('bubbles')
+  const ctx = canvas.getContext('2d')
+  let width, height
+  const bubbles = []
+
+  function resize() {
+    width = canvas.width = window.innerWidth
+    height = canvas.height = window.innerHeight
+  }
+
+  window.addEventListener('resize', resize)
+  resize()
+
+  class Bubble {
+    constructor() {
+      this.reset()
+    }
+
+    reset() {
+      this.x = Math.random() * width
+      this.y = height + Math.random() * 100
+      this.radius = Math.random() * 8 + 2
+      this.speed = Math.random() * 1.5 + 0.5
+      this.alpha = Math.random() * 0.5 + 0.2
+    }
+
+    update() {
+      this.y -= this.speed
+      if (this.y < -this.radius) this.reset()
+    }
+
+    draw() {
+      ctx.beginPath()
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
+      ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`
+      ctx.fill()
+    }
+  }
+
+  for (let i = 0; i < 80; i++) {
+    bubbles.push(new Bubble())
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, width, height)
+    for (let bubble of bubbles) {
+      bubble.update()
+      bubble.draw()
+    }
+    requestAnimationFrame(animate)
+  }
+
+  animate()
+</script>
+
+</body>
+</html>
