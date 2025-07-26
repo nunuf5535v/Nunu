@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monaco Univers</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+--neon-pink: #ff0080;
+--neon-cyan: #00ffff;
+--neon-purple: #8a2be2;
+--neon-green: #39ff14;
+--dark-void: #000000;
+--deep-space: #0a0a0f;
+--cosmic-blue: #1a1a2e;
+--glass-ultra: rgba(255,255,255,0.05);
+--glass-border: rgba(255,255,255,0.15);
+--text-primary: #ffffff;
+--text-glow: #e0e0e0;
+--text-dim: #888888;
+--shadow-neon: 0 0 30px rgba(255,0,128,0.3);
+--shadow-cosmic: 0 15px 40px rgba(0,0,0,0.6);
+--radius-ultra: 24px;
+--transition-smooth: all 0.3s ease;
+--blur-light: blur(10px);
+}
+
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+html {
+scroll-behavior: smooth;
+}
+
+body {
+font-family: 'Rajdhani', sans-serif;
+background: linear-gradient(135deg, var(--dark-void) 0%, var(--deep-space) 50%, var(--cosmic-blue) 100%);
+color: var(--text-primary);
+overflow-x: hidden;
+min-height: 100vh;
+position: relative;
+}
+
+body::before {
+content: "";
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: 
+  radial-gradient(circle at 25% 25%, rgba(255,0,128,0.1) 0%, transparent 50%),
+  radial-gradient(circle at 75% 75%, rgba(0,255,255,0.1) 0%, transparent 50%);
+pointer-events: none;
+z-index: -1;
+}
+
+.container {
+max-width: 1200px;
+margin: 0 auto;
+padding: 0 20px;
+}
+
+.loading-screen {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: linear-gradient(135deg, var(--dark-void), var(--deep-space));
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+z-index: 10000;
+transition: opacity 0.5s ease;
+}
+
+.loading-logo {
+font-family: 'Orbitron', monospace;
+font-size: 3rem;
+font-weight: 900;
+background: linear-gradient(45deg, var(--neon-pink), var(--neon-cyan));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+margin-bottom: 30px;
+animation: pulse-simple 2s ease-in-out infinite;
+}
+
+@keyframes pulse-simple {
+0%, 100% { transform: scale(1); opacity: 0.8; }
+50% { transform: scale(1.05); opacity: 1; }
+}
+
+.loading-bar {
+width: 250px;
+height: 3px;
+background: rgba(255,255,255,0.1);
+border-radius: 2px;
+overflow: hidden;
+}
+
+.loading-progress {
+height: 100%;
+background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan));
+border-radius: 2px;
+animation: loading-fill 2s ease-out forwards;
+}
+
+@keyframes loading-fill {
+0% { width: 0%; }
+100% { width: 100%; }
+}
+
+header {
+text-align: center;
+padding: 80px 0 60px;
+}
+
+.main-logo {
+font-family: 'Orbitron', monospace;
+font-size: clamp(2.5rem, 8vw, 5rem);
+font-weight: 900;
+background: linear-gradient(135deg, var(--neon-pink) 0%, var(--neon-cyan) 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+letter-spacing: -0.02em;
+margin-bottom: 20px;
+animation: glow-soft 3s ease-in-out infinite alternate;
+}
+
+@keyframes glow-soft {
+from { filter: drop-shadow(0 0 20px rgba(255,0,128,0.3)); }
+to { filter: drop-shadow(0 0 30px rgba(0,255,255,0.4)); }
+}
+
+.subtitle {
+font-size: 1.2rem;
+color: var(--text-glow);
+font-weight: 400;
+margin-bottom: 40px;
+}
+
+.stats-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+gap: 20px;
+margin-top: 40px;
+}
+
+.stat-card {
+background: var(--glass-ultra);
+backdrop-filter: var(--blur-light);
+border: 1px solid var(--glass-border);
+border-radius: var(--radius-ultra);
+padding: 20px;
+text-align: center;
+transition: var(--transition-smooth);
+}
+
+.stat-card:hover {
+transform: translateY(-5px);
+box-shadow: var(--shadow-neon);
+border-color: var(--neon-pink);
+}
+
+.stat-number {
+font-family: 'Orbitron', monospace;
+font-size: 2rem;
+font-weight: 700;
+background: linear-gradient(135deg, var(--neon-pink), var(--neon-cyan));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+display: block;
+margin-bottom: 8px;
+}
+
+.stat-label {
+font-size: 0.9rem;
+color: var(--text-dim);
+text-transform: uppercase;
+letter-spacing: 1px;
+font-weight: 500;
+}
+
+.section {
+margin-bottom: 60px;
+}
+
+.section-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 30px;
+flex-wrap: wrap;
+gap: 15px;
+}
+
+.section-left {
+display: flex;
+align-items: center;
+}
+
+.section-icon {
+width: 60px;
+height: 60px;
+background: linear-gradient(135deg, var(--neon-pink), var(--neon-cyan));
+border-radius: 16px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.5rem;
+margin-right: 20px;
+box-shadow: var(--shadow-neon);
+}
+
+.section-title {
+font-family: 'Orbitron', monospace;
+font-size: 2rem;
+font-weight: 700;
+color: var(--text-primary);
+}
+
+.section-count {
+background: var(--glass-ultra);
+backdrop-filter: var(--blur-light);
+border: 1px solid var(--glass-border);
+border-radius: 20px;
+padding: 6px 15px;
+font-size: 0.9rem;
+color: var(--text-glow);
+font-weight: 500;
+}
+
+.links-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+gap: 25px;
+}
+
+.link-card {
+background: var(--glass-ultra);
+backdrop-filter: var(--blur-light);
+border: 1px solid var(--glass-border);
+border-radius: var(--radius-ultra);
+padding: 30px;
+position: relative;
+cursor: pointer;
+transition: var(--transition-smooth);
+overflow: hidden;
+}
+
+.link-card::before {
+content: "";
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+height: 2px;
+background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan));
+opacity: 0;
+transition: var(--transition-smooth);
+}
+
+.link-card:hover::before {
+opacity: 1;
+}
+
+.link-card:hover {
+transform: translateY(-8px);
+box-shadow: var(--shadow-cosmic), var(--shadow-neon);
+border-color: var(--neon-pink);
+}
+
+.link-header {
+display: flex;
+align-items: center;
+margin-bottom: 20px;
+}
+
+.link-icon {
+width: 70px;
+height: 70px;
+border-radius: 16px;
+margin-right: 20px;
+overflow: hidden;
+box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+flex-shrink: 0;
+}
+
+.link-icon img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+transition: var(--transition-smooth);
+}
+
+.link-card:hover .link-icon img {
+transform: scale(1.1);
+}
+
+.link-info h3 {
+font-family: 'Orbitron', monospace;
+font-size: 1.3rem;
+font-weight: 600;
+color: var(--text-primary);
+margin-bottom: 6px;
+}
+
+.link-info p {
+color: var(--text-glow);
+font-size: 0.95rem;
+line-height: 1.5;
+font-weight: 400;
+}
+
+.link-meta {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-top: 20px;
+padding-top: 20px;
+border-top: 1px solid var(--glass-border);
+}
+
+.link-type {
+background: linear-gradient(135deg, var(--neon-pink), var(--neon-cyan));
+color: var(--text-primary);
+padding: 6px 12px;
+border-radius: 15px;
+font-size: 0.8rem;
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+
+.link-arrow {
+width: 24px;
+height: 24px;
+opacity: 0.6;
+transition: var(--transition-smooth);
+}
+
+.link-card:hover .link-arrow {
+opacity: 1;
+transform: translateX(5px);
+}
+
+.footer {
+text-align: center;
+padding: 50px 0;
+border-top: 1px solid var(--glass-border);
+margin-top: 80px;
+background: var(--glass-ultra);
+backdrop-filter: var(--blur-light);
+}
+
+.footer-text {
+color: var(--text-dim);
+font-size: 0.9rem;
+font-weight: 400;
+}
+
+.footer-brand {
+color: var(--neon-pink);
+font-weight: 700;
+}
+
+.hidden {
+opacity: 0;
+visibility: hidden;
+}
+
+.fade-in {
+opacity: 1;
+transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+.links-grid {
+grid-template-columns: 1fr;
+}
+.stats-grid {
+grid-template-columns: repeat(2, 1fr);
+}
+.section-header {
+flex-direction: column;
+align-items: flex-start;
+}
+.main-logo {
+font-size: 2.5rem;
+}
+.link-card {
+padding: 25px;
+}
+.link-icon {
+width: 60px;
+height: 60px;
+}
+.section-icon {
+width: 50px;
+height: 50px;
+font-size: 1.2rem;
+}
+.section-title {
+font-size: 1.5rem;
+}
+}
+
+@media (max-width: 480px) {
+.container {
+padding: 0 15px;
+}
+.stats-grid {
+grid-template-columns: 1fr;
+}
+.link-header {
+flex-direction: column;
+text-align: center;
+}
+.link-icon {
+margin-right: 0;
+margin-bottom: 15px;
+}
+}
+</style>
+</head>
+<body>
+
+<div class="loading-screen" id="loadingScreen">
+<div class="loading-logo">MONACO</div>
+<div class="loading-bar">
+<div class="loading-progress"></div>
+</div>
+</div>
+
+<div class="container">
+<header>
+<h1 class="main-logo">MONACO UNIVERS</h1>
+<p class="subtitle">PAINEL MONACO</p>
+<div class="stats-grid">
+<div class="stat-card">
+<span class="stat-number">exclusividade?</span>
+<span class="stat-label">só aqui.</span>
+</div>
+<div class="stat-card">
+<span class="stat-number">∞</span>
+<span class="stat-label">Segurança</span>
+</div>
+<div class="stat-card">
+<span class="stat-number">25/7</span>
+<span class="stat-label">Atualizado</span>
+</div>
+</div>
+</header>
+
+<section class="section">
+<div class="section-header">
+<div class="section-left">
+<div class="section-icon">📢</div>
+<h2 class="section-title">Canais</h2>
+</div>
+<span class="section-count">2 Canais</span>
+</div>
+<div class="links-grid">
+<div class="link-card" onclick="abrirLink('https://whatsapp.com/channel/0029VaKoRrpJkK76x4lJfs40')">
+<div class="link-header">
+<div class="link-icon">
+<img src="https://553555.sirv.com/Images/frankyx/frankyupa_1753488974147.png" alt="Canal Principal">
+</div>
+<div class="link-info">
+<h3>Canal Principal</h3>
+<p>Notícias exclusivas, apks, bots, filmes e muito mais do Monaco Univers</p>
+</div>
+</div>
+<div class="link-meta">
+<span class="link-type">exclusivo</span>
+<svg class="link-arrow" fill="currentColor" viewBox="0 0 20 20">
+<path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+</svg>
+</div>
+</div>
+<div class="link-card" onclick="abrirLink('https://whatsapp.com/channel/0029Val23S29mrGla6H7e13e')">
+<div class="link-header">
+<div class="link-icon">
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGlSzUJHKBHp-qr-WzJUOZEqGhHYDGC77zoFhsQBxCnQULxNgX-tsoWIU&s=10" alt="Canal Música">
+</div>
+<div class="link-info">
+<h3>Canal de Música</h3>
+<p>edits, e musicas aqui</p>
+</div>
+</div>
+<div class="link-meta">
+<span class="link-type">exclusivo</span>
+<svg class="link-arrow" fill="currentColor" viewBox="0 0 20 20">
+<path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+</svg>
+</div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-header">
+<div class="section-left">
+<div class="section-icon">👥</div>
+<h2 class="section-title">Comunidade</h2>
+</div>
+<span class="section-count">2 links</span>
+</div>
+<div class="links-grid">
+<div class="link-card" onclick="abrirLink('https://chat.whatsapp.com/Cucm0S2AynD00KIDQ8PQwO')">
+<div class="link-header">
+<div class="link-icon">
+<img src="https://553555.sirv.com/Images/frankyx/askai_676840.jpg" alt="Grupo Oficial">
+</div>
+<div class="link-info">
+<h3>Grupo Oficial MNC</h3>
+<p>Grupo oficial de monaco</p>
+</div>
+</div>
+<div class="link-meta">
+<span class="link-type">exclusivo</span>
+<svg class="link-arrow" fill="currentColor" viewBox="0 0 20 20">
+<path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+</svg>
+</div>
+</div>
+<div class="link-card" onclick="abrirLink('https://chat.whatsapp.com/EuqjlR2zadGHEtYUooUPtC')">
+<div class="link-header">
+<div class="link-icon">
+<img src="https://553555.sirv.com/Images/frankyx/frankyupa_1753488061268.png" alt="Comunidade">
+</div>
+<div class="link-info">
+<h3>Comunidade</h3>
+<p>comunidade dos grupos</p>
+</div>
+</div>
+<div class="link-meta">
+<span class="link-type">Exclusivo</span>
+<svg class="link-arrow" fill="currentColor" viewBox="0 0 20 20">
+<path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+</svg>
+</div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-header">
+<div class="section-left">
+<div class="section-icon">🤖</div>
+<h2 class="section-title">Bot Exclusivo</h2>
+</div>
+<span class="section-count">1 link</span>
+</div>
+<div class="links-grid">
+<div class="link-card" onclick="abrirLink('https://mega.nz/file/ML1XjaLa#W8y9giefK2A7RRXcXMfJVSjufJPJuTIlPDKpo9MhpEM')">
+<div class="link-header">
+<div class="link-icon">
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5nHdsaG4F9PRWHlIpM6tTbo5eitFQchEJNLwBSogAQLj0CsFs3e003xA&s=10" alt="Bot Monaco">
+</div>
+<div class="link-info">
+<h3>Bot</h3>
+<p>base com botão</p>
+</div>
+</div>
+<div class="link-meta">
+<span class="link-type">Exclusivo</span>
+<svg class="link-arrow" fill="currentColor" viewBox="0 0 20 20">
+<path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+</svg>
+</div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-header">
+<div class="section-left">
+<div class="section-icon">🙋‍♂️</div>
+<h2 class="section-title">Parceiros mnc</h2>
+</div>
+<span class="section-count">3 link</span>
+</div>
+<div class="links-grid">
+<div class="link-card" onclick="abrirLink('https://whatsapp.com/channel/0029Vb9sfs317EmyqWxmo40Y')">
+<div class="link-header">
+<div class="link-icon">
+<img src="https://553555.sirv.com/Images/IMG-20250721-WA0015.jpg" alt="Bot Monaco">
+</div>
+<div class="link-info">
+<h3>SPIRIT</h3>
+<p>criadora: gabi</p>
+</div>
+</div>
+<div class="link-meta">
+<span class="link-type">parceiro</span>
+<svg class="link-arrow" fill="currentColor" viewBox="0 0 20 20">
+<path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+</svg>
+</div>
+</div>
+<div class="links-grid">
+  <div class="link-card" onclick="abrirLink('https://553555.sirv.com/Images/IMG-20250724-WA0274.jpg')">
+    <div class="link-header">
+      <div class="link-icon">
+        <img src="https://553555.sirv.com/Images/IMG-20250724-WA0274.jpg" alt="Rooh">
+      </div>
+      <div class="link-info">
+        <h3>MEXUS</h3>
+        <p>criador: rooh</p>
+      </div>
+    </div>
+    <div class="link-meta">
+      <span class="link-type">parceiro</span>
+      <svg class="link-arrow" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+      </svg>
+    </div>
+  </div>
+</div>
+<div class="links-grid">
+  <div class="link-card" onclick="alert('O link ainda não está disponível!')">
+    <div class="link-header">
+      <div class="link-icon">
+        <img src="https://cdn-icons-png.flaticon.com/512/875/875610.png" alt="Clover">
+      </div>
+      <div class="link-info">
+        <h3>CLOVER</h3>
+        <p>projeto Anitik API</p>
+      </div>
+    </div>
+    <div class="link-meta">
+      <span class="link-type">em desenvolvimento</span>
+      <svg class="link-arrow" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+      </svg>
+    </div>
+  </div>
+</div>
+</div>
+</section>
+</div>
+
+<footer class="footer">
+<div class="container">
+<p class="footer-text">© 2025 <span class="footer-brand">Monaco Univers</span> • Desenvolvido por NUNU • Todos os direitos reservados</p>
+</div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loading = document.getElementById('loadingScreen')
+    
+    setTimeout(function() {
+        loading.classList.add('hidden')
+    }, 2200)
+    
+    const cards = document.querySelectorAll('.link-card')
+    cards.forEach(function(card, index) {
+        setTimeout(function() {
+            card.classList.add('fade-in')
+        }, index * 100 + 2500)
+    })
+})
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.key === 'U')) {
+        e.preventDefault()
+        alert('Sistema protegido por IA avançada!')
+    }
+})
+
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault()
+})
+
+document.addEventListener('selectstart', function(e) {
+    e.preventDefault()
+})
+
+document.addEventListener('dragstart', function(e) {
+    e.preventDefault()
+})
+
+function abrirLink(url) {
+    try {
+        window.open(url, '_blank')
+        window.focus()
+    } catch (error) {
+        location.href = url
+    }
+}
+</script>
+
+</body>
+</html>
