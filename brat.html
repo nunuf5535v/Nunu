@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Brat — MONACO UNIVERS</title><style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');*{box-sizing:border-box}
+body{margin:0;font-family:'Inter',sans-serif;background:#f5f7fa;color:#222;display:flex;flex-direction:column;min-height:100vh;align-items:center;padding:2rem 1rem}
+h1{font-weight:600;font-size:2rem;margin-bottom:0.25rem;color:#1a202c}
+p.subtitle{color:#555;margin-top:0;margin-bottom:2rem;font-size:1rem}.container{background:#ffffff;box-shadow:0 4px 15px rgba(0,0,0,0.1);border-radius:12px;padding:2rem;max-width:420px;width:100%}
+label{font-weight:600;display:block;margin-bottom:0.5rem;color:#444}
+input[type="text"]{width:100%;padding:0.75rem 1rem;font-size:1rem;border:1.5px solid #d1d5db;border-radius:8px;transition:border-color 0.3s ease}
+input[type="text"]:focus{outline:none;border-color:#2563eb;box-shadow:0 0 6px #2563ebaa}
+button{margin-top:1.75rem;width:100%;background-color:#2563eb;color:white;font-weight:600;padding:0.85rem;font-size:1.1rem;border:none;border-radius:10px;cursor:pointer;transition:background-color 0.25s ease}
+button:hover:not(:disabled){background-color:#1e40af}
+button:disabled{background-color:#93c5fd;cursor:not-allowed}
+#resultado{margin-top:2rem;text-align:center}
+#resultado img{max-width:100%;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.1);user-select:none}
+#downloadBtn{display:inline-block;margin-top:1.25rem;background-color:#2563eb;color:white;padding:0.6rem 1.5rem;border-radius:8px;font-weight:600;font-size:1rem;text-decoration:none;user-select:none;transition:background-color 0.25s ease}
+#downloadBtn:hover{background-color:#1e40af}
+footer{margin-top:auto;font-size:0.85rem;color:#777;text-align:center;padding:1.5rem 1rem 0}
+footer a{color:#2563eb;text-decoration:none}
+footer a:hover{text-decoration:underline}
+@media(max-width:480px){body{padding:1rem}.container{padding:1.5rem}
+h1{font-size:1.75rem}
+button,input[type="text"]{font-size:1rem;padding:0.7rem 1rem}}</style></head><body><h1>Brat</h1><p class="subtitle">MONACO UNIVERS</p><div class="container" role="main" aria-label="Formulário para gerar sticker"><label for="texto">Texto</label><input type="text" id="texto" placeholder="Digite seu texto aqui" autocomplete="off" aria-required="true"/><button id="gerarBtn" onclick="gerar()">Gerar Sticker</button><div id="resultado" aria-live="polite" aria-atomic="true"></div></div><footer>API por Siputzx • MONACO UNIVERS NUNU<br/><a href="https://whatsapp.com/channel/0029VaKoRrpJkK76x4lJfs40" target="_blank" rel="noopener noreferrer">Canal Oficial WhatsApp</a></footer><script>const gerarBtn=document.getElementById('gerarBtn')
+const resultado=document.getElementById('resultado')
+async function gerar(){const texto=document.getElementById('texto').value.trim()
+resultado.innerHTML=''
+if(!texto){resultado.innerHTML='<p style="color:#ef4444;">Por favor, digite algum texto</p>'
+return}
+gerarBtn.disabled=!0
+gerarBtn.textContent='Gerando...'
+const urlApi='https://brat.siputzx.my.id/image?text='+encodeURIComponent(texto)
+const proxy='https://corsproxy.io/?'
+try{const res=await fetch(proxy+encodeURIComponent(urlApi))
+if(!res.ok)throw new Error('Erro na resposta da API')
+const blob=await res.blob()
+const src=URL.createObjectURL(blob)
+resultado.innerHTML='<img src="'+src+'" alt="Sticker gerado" />'
+const downloadBtn=document.createElement('a')
+downloadBtn.id='downloadBtn'
+downloadBtn.href=src
+downloadBtn.download='brat_sticker.webp'
+downloadBtn.textContent='⬇️ Baixar'
+downloadBtn.onclick=()=>{setTimeout(()=>URL.revokeObjectURL(src),10000)}
+resultado.appendChild(downloadBtn)}catch(error){resultado.innerHTML='<p style="color:#ef4444;">Erro ao gerar o sticker. Tente novamente.</p>'
+console.error(error)}finally{gerarBtn.disabled=!1
+gerarBtn.textContent='Gerar Sticker'}}</script></body></html>
