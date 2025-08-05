@@ -4,28 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Campo Minado Deluxe</title>
-  <base href="https://campominadodeluxe.com">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: #4a90e2;
       --secondary: #f39c12;
       --bg: #1a252f;
       --text: #ecf0f1;
-      --cell: 40px;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Poppins', sans-serif;
       background: var(--bg);
       color: var(--text);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
@@ -36,18 +30,13 @@
       background: rgba(255, 255, 255, 0.08);
       border-radius: 20px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-      padding: 2rem;
+      padding: 1rem;
       text-align: center;
       width: 100%;
-      max-width: 400px;
+      max-width: 500px;
     }
 
-    h1 {
-      font-size: 2.5rem;
-      color: var(--secondary);
-      margin-bottom: 1rem;
-      text-shadow: 2px 2px 6px rgba(0,0,0,0.3);
-    }
+    h1 { font-size: 2rem; color: var(--secondary); margin-bottom: 1rem; }
 
     #controls {
       display: flex;
@@ -57,7 +46,7 @@
       margin-bottom: 1rem;
     }
 
-    select, button {
+    button, select {
       background: var(--primary);
       border: none;
       color: white;
@@ -68,36 +57,36 @@
       transition: transform 0.2s, background 0.3s;
     }
 
-    select:hover, button:hover {
+    button:hover, select:hover {
       background: #357abd;
       transform: translateY(-2px);
     }
 
     #gameboard {
       display: grid;
-      gap: 5px;
+      gap: 4px;
       justify-content: center;
-      margin-top: 20px;
+      width: 100%;
+      margin-top: 10px;
     }
 
     .cell {
-      width: var(--cell);
-      height: var(--cell);
+      aspect-ratio: 1/1;
       background: rgba(255,255,255,0.1);
       border: 2px solid rgba(255,255,255,0.2);
-      border-radius: 8px;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      font-size: 18px;
+      font-size: 1.2rem;
       cursor: pointer;
+      user-select: none;
       transition: all 0.2s ease;
     }
 
     .cell:hover {
       background: rgba(255,255,255,0.2);
-      transform: scale(1.05);
     }
 
     .cell.revealed {
@@ -110,15 +99,22 @@
       color: white;
     }
 
+    .cell.flagged {
+      color: var(--secondary);
+    }
+
     #status {
-      margin-top: 20px;
-      font-size: 1.2rem;
+      margin-top: 15px;
+      font-size: 1.1rem;
       font-weight: 600;
     }
 
-    @media (max-width: 480px) {
-      :root { --cell: 30px; }
-      h1 { font-size: 2rem; }
+    .active-flag {
+      background: #e74c3c !important;
+    }
+
+    @media (max-width: 500px) {
+      .cell { font-size: 4vw; }
     }
   </style>
 </head>
@@ -132,15 +128,16 @@
         <option value="hard">Difícil</option>
       </select>
       <button onclick="newgame()">Novo Jogo</button>
+      <button id="flagbutton" onclick="toggleflagmode()">🚩</button>
     </div>
     <div id="gameboard"></div>
-    <div id="status">MONACO UNIVERS 🇲🇨</div>
+    <div id="status">MONACO UNIVERS 🚩</div>
   </div>
 
   <script>
     let boardsize, nummines;
-    let board = [], revealed = [];
-    let gameover = false, firstclick = true;
+    let board = [], revealed = [], flagged = [];
+    let gameover = false, firstclick = true, flagmode = false;
 
     function setdifficulty(level) {
       if (level === 'easy') { boardsize = 8; nummines = 10; }
@@ -157,6 +154,7 @@
     function createboard() {
       board = Array.from({ length: boardsize }, () => Array(boardsize).fill(0));
       revealed = Array.from({ length: boardsize }, () => Array(boardsize).fill(false));
+      flagged = Array.from({ length: boardsize }, () => Array(boardsize).fill(false));
       firstclick = true;
     }
 
@@ -188,8 +186,31 @@
       return count;
     }
 
+    function handlecellclick(row, col) {
+      if (gameover) return;
+
+      if (flagmode) {
+        toggleflag(row, col);
+      } else {
+        revealcell(row, col);
+      }
+    }
+
+    function toggleflag(row, col) {
+      if (revealed[row][col]) return;
+      flagged[row][col] = !flagged[row][col];
+      const cell = document.getElementById(`cell-${row}-${col}`);
+      if (flagged[row][col]) {
+        cell.textContent = '🚩';
+        cell.classList.add('flagged');
+      } else {
+        cell.textContent = '';
+        cell.classList.remove('flagged');
+      }
+    }
+
     function revealcell(row, col) {
-      if (revealed[row][col] || gameover) return;
+      if (revealed[row][col] || flagged[row][col] || gameover) return;
       if (firstclick) { placemines(row, col); firstclick = false; }
 
       revealed[row][col] = true;
@@ -245,21 +266,31 @@
     function renderboard() {
       const gameboard = document.getElementById('gameboard');
       gameboard.innerHTML = '';
-      gameboard.style.gridTemplateColumns = `repeat(${boardsize}, 1fr)`;
+      gameboard.style.gridTemplateColumns = `repeat(${boardsize}, minmax(0, 1fr))`;
       for (let row = 0; row < boardsize; row++) {
         for (let col = 0; col < boardsize; col++) {
           const cell = document.createElement('div');
           cell.id = `cell-${row}-${col}`;
           cell.className = 'cell';
-          cell.onclick = () => revealcell(row, col);
+          cell.onclick = () => handlecellclick(row, col);
           gameboard.appendChild(cell);
         }
       }
     }
 
+    function toggleflagmode() {
+      flagmode = !flagmode;
+      const button = document.getElementById('flagbutton');
+      if (flagmode) {
+        button.classList.add('active-flag');
+      } else {
+        button.classList.remove('active-flag');
+      }
+    }
+
     function newgame() {
       gameover = false;
-      document.getElementById('status').textContent = 'MONACO UNIVERS 🇲🇨';
+      document.getElementById('status').textContent = 'MONACO UNIVERS 🚩';
       createboard();
       renderboard();
     }
@@ -268,4 +299,4 @@
     newgame();
   </script>
 </body>
-</html>
+  </html>
