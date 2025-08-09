@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Monaco clima</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg1:#071226;
+  --bg2:#071a2e;
+  --card: rgba(255,255,255,0.04);
+  --glass: rgba(255,255,255,0.03);
+  --muted: rgba(230,238,248,0.78);
+  --accent1:#7c3aed;
+  --accent2:#06b6d4;
+  --radius:16px;
+  font-family:'Inter',system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#eaf2ff}
+.wrap{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:20px;}
+.app{width:100%;max-width:520px;display:flex;flex-direction:column;gap:14px}
+.header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:20px;box-shadow:0 10px 30px rgba(6,182,212,0.08)}
+.title{margin:0}
+.subtitle{margin:0;color:var(--muted);font-size:13px}
+.card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:var(--radius);padding:14px;border:1px solid rgba(255,255,255,0.03);backdrop-filter:blur(6px);box-shadow:0 10px 30px rgba(2,6,23,0.55)}
+.searchRow{display:flex;gap:8px;margin-top:10px}
+.searchBox{flex:1;background:var(--glass);padding:8px;border-radius:12px;display:flex;align-items:center;gap:8px}
+.searchInput{flex:1;background:transparent;border:0;color:inherit;outline:none;font-size:15px;padding:8px}
+.btn{padding:10px 12px;border-radius:12px;border:0;background:linear-gradient(90deg,#2563eb,#7c3aed);color:white;font-weight:700;cursor:pointer}
+.quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.chip{padding:8px 10px;border-radius:999px;background:rgba(255,255,255,0.02);font-size:13px;cursor:pointer;border:1px solid rgba(255,255,255,0.02);transition:background-color 0.3s ease}
+.chip:hover, .chip:focus{background:var(--accent2);border-color:var(--accent2);color:#fff;outline:none}
+.preview{display:flex;gap:12px;align-items:center}
+.visual{width:110px;min-height:110px;border-radius:12px;padding:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow: 0 4px 8px rgba(0,0,0,0.2)}
+.icon{width:72px;height:72px;object-fit:contain}
+.temp{font-size:34px;font-weight:800;letter-spacing:-1px;margin-top:6px}
+.desc{font-size:13px;color:var(--muted);text-transform:capitalize;margin-top:6px}
+.infoGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.info{background:rgba(255,255,255,0.02);padding:10px;border-radius:10px;font-size:13px;text-align:center;box-shadow: inset 0 0 8px rgba(255,255,255,0.05)}
+.miniMeta{display:flex;gap:8px;flex-direction:column;margin-top:12px;color:var(--muted);font-size:13px}
+.mapPreview{height:110px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.02));display:flex;align-items:center;justify-content:center;color:var(--muted);border:1px solid rgba(255,255,255,0.03);margin-top:12px;user-select:none}
+.footer{display:flex;align-items:center;justify-content:space-between;color:rgba(230,238,248,0.55);font-size:12px;margin-top:6px;user-select:none;opacity: 0;}
+.bad{color:#ffdede;background:rgba(255,0,0,0.06);padding:6px;border-radius:8px;font-weight:700}
+@media (min-width:880px){
+  .app{max-width:930px;display:grid;grid-template-columns:360px 1fr;gap:20px}
+  .preview{flex-direction:column;align-items:flex-start}
+  .visual{width:140px;height:140px}
+  .temp{font-size:48px}
+}
+</style>
+</head>
+<body>
+<div class="wrap" role="main">
+  <div class="app" aria-label="Aplicativo de clima">
+    <div class="card header" id="headerCard">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">M</div>
+        <div>
+          <h1 class="title">Monaco</h1>
+        </div>
+      </div>
+      <div id="flag" style="font-size:20px" aria-hidden="true">🇧🇷</div>
+    </div>
+
+    <div class="card" id="leftCard">
+      <div class="searchRow">
+        <div class="searchBox" role="search">
+          <input id="searchInput" class="searchInput" type="search" placeholder="Ex: Rio de Janeiro" aria-label="Buscar cidade" />
+        </div>
+        <button id="searchBtn" class="btn" aria-label="Buscar clima">Buscar</button>
+      </div>
+
+      <div class="quick" role="list" aria-label="Cidades rápidas para busca">
+        <div tabindex="0" role="listitem" class="chip" data-city="Monaco">Mônaco</div>
+        <div tabindex="0" role="listitem" class="chip" data-city="São Paulo,BR">São Paulo</div>
+        <div tabindex="0" role="listitem" class="chip" data-city="Paris,FR">Paris</div>
+        <div tabindex="0" role="listitem" class="chip" data-city="Tokyo,JP">Tokyo</div>
+      </div>
+
+      <div class="mapPreview" id="mapPreview" aria-label="Mapa e preview da localização">Mapa / Preview</div>
+    </div>
+
+    <div class="card" id="rightCard" aria-live="polite">
+      <div class="preview">
+        <div class="visual" aria-label="Ícone e temperatura">
+          <div id="iconWrap"><img id="icon" class="icon" src="" alt="" aria-hidden="true" /></div>
+          <div id="temp" class="temp">—°C</div>
+          <div id="desc" class="desc">—</div>
+        </div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <h2 id="place" style="margin:0">São Paulo, BR</h2>
+              <div id="summary" class="subtitle" style="margin-top:6px">Informações atuais</div>
+            </div>
+            <div style="text-align:right">
+              <div id="countryFlag" style="font-size:26px" aria-hidden="true">🇧🇷</div>
+              <div id="locId" class="subtitle">ID: —</div>
+            </div>
+          </div>
+
+          <div class="infoGrid" style="margin-top:12px">
+            <div class="info">Umidade<br><strong id="humidity">—</strong></div>
+            <div class="info">Vento<br><strong id="wind">—</strong></div>
+            <div class="info">Pressão<br><strong id="pressure">—</strong></div>
+          </div>
+
+          <div style="margin-top:12px" class="miniMeta" aria-live="polite" aria-atomic="true" aria-label="Temperaturas e horário do sol">
+            <div>Máx / Mín: <strong id="tminmax">—</strong></div>
+            <div>Nascer / Pôr do sol: <strong id="sun">—</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API_KEY = '1d0bdf08a222f8f2da252ef8921ff4ab';
+const DEFAULT = 'São Paulo,BR';
+let currentCoords = null;
+let currentQuery = DEFAULT;
+
+const el = id => document.getElementById(id);
+const searchInput = el('searchInput');
+const searchBtn = el('searchBtn');
+const chips = Array.from(document.querySelectorAll('.chip'));
+
+const place = el('place');
+const temp = el('temp');
+const desc = el('desc');
+const icon = el('icon');
+const humidity = el('humidity');
+const wind = el('wind');
+const pressure = el('pressure');
+const tminmax = el('tminmax');
+const sun = el('sun');
+const locId = el('locId');
+const summary = el('summary');
+const countryFlag = el('countryFlag');
+const flagHeader = el('flag');
+const mapPreview = el('mapPreview');
+
+function safeFetch(url){
+  return fetch(url).then(r => r.ok ? r.json() : r.json().then(j => Promise.reject(j))).catch(err => { throw err });
+}
+
+function fmtTime(ts){
+  if(!ts) return '—';
+  const d = new Date(ts*1000);
+  return d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+}
+
+function updateUI(data){
+  if(!data) return;
+  currentCoords = data.coord || null;
+  currentQuery = data.name || currentQuery;
+  place.textContent = `${data.name}, ${data.sys && data.sys.country ? data.sys.country : ''}`;
+  temp.textContent = Math.round(data.main.temp) + '°C';
+  desc.textContent = data.weather && data.weather[0] ? data.weather[0].description : '—';
+  humidity.textContent = (data.main.humidity || '—') + '%';
+  wind.textContent = ((data.wind && data.wind.speed) || '—') + ' m/s';
+  pressure.textContent = (data.main.pressure || '—') + ' hPa';
+  tminmax.textContent = `${Math.round(data.main.temp_max)}° / ${Math.round(data.main.temp_min)}°`;
+  sun.textContent = `${fmtTime(data.sys.sunrise)} / ${fmtTime(data.sys.sunset)}`;
+  locId.textContent = data.id || '—';
+  summary.textContent = data.weather && data.weather[0] ? data.weather[0].main : '—';
+  const ic = data.weather && data.weather[0] ? data.weather[0].icon : null;
+  if(ic) icon.src = `https://openweathermap.org/img/wn/${ic}@4x.png`;
+  else icon.src = '';
+  countryFlag.textContent = data.sys && data.sys.country ? countryToFlag(data.sys.country) : '';
+  flagHeader.textContent = data.sys && data.sys.country ? countryToFlag(data.sys.country) : '';
+  mapPreview.innerHTML = `<div style="text-align:center"><div style="font-weight:700">${data.name}, ${data.sys.country}</div><div style="margin-top:6px;font-size:13px">Lat ${data.coord.lat.toFixed(4)} · Lon ${data.coord.lon.toFixed(4)}</div></div>`;
+}
+
+function countryToFlag(code){
+  if(!code || code.length !== 2) return '';
+  return String.fromCodePoint(...[...code.toUpperCase()].map(c => 127397 + c.charCodeAt()));
+}
+
+async function fetchByCity(q){
+  try{
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(q)}&appid=${API_KEY}&units=metric&lang=pt_br`;
+    const data = await safeFetch(url);
+    updateUI(data);
+  } catch(e){
+    alert('Cidade não encontrada ou erro de rede.');
+  }
+}
+
+searchBtn.addEventListener('click', ()=>{
+  const q = searchInput.value.trim();
+  if(!q) { alert('Digite uma cidade (ex: Rio de Janeiro,BR)'); return; }
+  currentCoords = null;
+  fetchByCity(q);
+});
+
+searchInput.addEventListener('keydown', e=>{
+  if(e.key==='Enter'){
+    e.preventDefault();
+    searchBtn.click();
+  }
+});
+
+chips.forEach(c => c.addEventListener('click', () => {
+  const city = c.getAttribute('data-city');
+  searchInput.value = ''
+  currentCoords = null
+  fetchByCity(city)
+}))
+
+fetchByCity(DEFAULT)
+</script>
+</body>
+  </html>
