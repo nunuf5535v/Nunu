@@ -1,44 +1,15 @@
 <!doctype html>
-<html lang="pt-BR">
+
+<html>
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Redirecionando...</title>
-  <style>
-    body{font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f7f7f9;color:#111}
-    .card{background:white;padding:24px;border-radius:12px;box-shadow:0 6px 22px rgba(16,24,40,.08);text-align:center}
-    a{color:inherit}
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h2>Redirecionando...</h2>
-    <p>Se o redirecionamento não ocorrer automaticamente, clique no botão abaixo.</p>
-    <p id="linkContainer"></p>
-    <button id="goBtn">Ir agora</button>
-  </div>
-
+  <meta http-equiv="refresh" content="0">
   <script>
-    // Link ofuscado em Base64 ("criptografado" simples)
-    const encoded = 'aHR0cHM6Ly93d3cuY2FudmEuY29tL2JyYW5kL2pvaW4/dG9rZW49NGxTVXFQX05xOVpLVWhObEdsTlF1QSZicmFuZGluZ1ZhcmlhbnQ9ZWR1JnJlZmVycmVyPXRlYW0taW52aXRl';
-
-    // Decodifica e redireciona imediatamente
-    try{
-      const url = atob(encoded);
-      // mostra o link como fallback (opcional)
-      const p = document.getElementById('linkContainer');
-      p.innerHTML = `<a href="${url}">${url}</a>`;
-
-      // Redireciona sem guardar no histórico
-      window.location.replace(url);
-    }catch(e){
-      console.error('Falha ao decodificar o link:', e);
-    }
-
-    // Botão para redirecionar manualmente se necessário
-    document.getElementById('goBtn').addEventListener('click', ()=>{
-      try{ location.href = atob(encoded); }catch(e){ console.error(e) }
-    });
+    // Base64 do link
+    const e = 'aHR0cHM6Ly93d3cuY2FudmEuY29tL2JyYW5kL2pvaW4/dG9rZW49NGxTVXFQX05xOVpLVWhObEdsTlF1QSZicmFuZGluZ1ZhcmlhbnQ9ZWR1JnJlZmVycmVyPXRlYW0taW52aXRl';
+    // Redireciona imediatamente
+    location.replace(atob(e));
   </script>
-</body>
+</head>
+<body></body>
 </html>
