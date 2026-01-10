@@ -2,112 +2,101 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import * as fs from 'fs';
 
-// --- INTERFACES (Para garantir a tipagem profissional) ---
+// --- CONFIGURAÇÃO E TIPAGEM ---
 interface Noticia {
     titulo: string;
     horario: string;
     link: string;
-    imagem: string | undefined;
+    imagem: string;
 }
 
-interface JogoAgenda {
-    liga: string;
-    casa: string;
-    fora: string;
-    escudoCasa: string | undefined;
-    escudoFora: string | undefined;
-    data: string;
-    hora: string;
+interface Jogo {
+    campeonato: string;
+    mandante: string;
+    visitante: string;
+    escudoMandante: string;
+    escudoVisitante: string;
+    info: string; // Placar ou Data/Hora
+    status: 'agenda' | 'resultado';
 }
 
-interface JogoResultado {
-    liga: string;
-    casa: string;
-    fora: string;
-    placar: string;
-    data: string;
-    escudoCasa: string | undefined;
-}
+const FALLBACK_IMG = 'https://s2-ge.glbimg.com/filters:format(webp)/g.globo/futebol/escudos/corinthians.svg';
 
-// --- FUNÇÃO PRINCIPAL ---
-async function main() {
-    console.log('🦅 Iniciando scraper do Timão...');
+// --- 1. O SCRAPER (A Lógica) ---
+async function scrapTimao() {
+    console.log('🦅 Vai Corinthians! Iniciando busca de dados...');
 
     try {
-        // 1. SCRAPER DE NOTÍCIAS (GE)
-        const { data: corinthiansData } = await axios.get('https://ge.globo.com/futebol/times/corinthians/');
-        const $ = cheerio.load(corinthiansData);
-        let noticias: Noticia[] = [];
+        // A) Notícias do GE
+        const { data: geData } = await axios.get('https://ge.globo.com/futebol/times/corinthians/');
+        const $ge = cheerio.load(geData);
+        const noticias: Noticia[] = [];
 
-        $('.feed-post-body').each((index, element) => {
-            const titulo = $(element).find('.feed-post-body-title').first().text().trim();
-            const horario = $(element).find('.feed-post-datetime').first().text().trim();
-            const link = $(element).find('a.feed-post-link').attr('href') || '#';
+        $ge('.feed-post-body').slice(0, 10).each((_, el) => {
+            const titulo = $ge(el).find('.feed-post-body-title').text().trim();
+            const link = $ge(el).find('a.feed-post-link').attr('href') || '#';
+            const horario = $ge(el).find('.feed-post-datetime').text().trim();
             
-            // Tenta pegar src, se não existir, tenta data-src (comum em lazy load)
-            let imagem = $(element).find('img').attr('src');
-            if (!imagem || imagem.includes('data:image')) {
-                 imagem = $(element).find('img').attr('data-src');
-            }
+            let imagem = $ge(el).find('img').attr('src') || $ge(el).find('img').attr('data-src');
+            if (!imagem || imagem.includes('data:image')) imagem = FALLBACK_IMG;
 
-            if (titulo) {
-                noticias.push({ titulo, horario, link, imagem });
-            }
+            if (titulo) noticias.push({ titulo, horario, link, imagem: imagem as string });
         });
 
-        // 2. SCRAPER DA AGENDA (Placar de Futebol)
-        const { data: agendaHtml } = await axios.get('https://www.placardefutebol.com.br/time/corinthians/proximos-jogos');
-        const agenda$ = cheerio.load(agendaHtml);
-        let agenda: JogoAgenda[] = [];
+        // B) Próximos Jogos (Placar de Futebol)
+        const { data: agendaData } = await axios.get('https://www.placardefutebol.com.br/time/corinthians/proximos-jogos');
+        const $agenda = cheerio.load(agendaData);
+        const agenda: Jogo[] = [];
 
-        agenda$('.match__lg').each((i, el) => {
-            const dateTimeArr = agenda$(el).find('.match__lg_card--datetime').html()?.split('<br>');
+        $agenda('.match__lg').each((_, el) => {
+            const dataHoraArr = $agenda(el).find('.match__lg_card--datetime').html()?.split('<br>') || [];
+            const data = dataHoraArr[0]?.trim().replace(',', '') || '';
+            const hora = dataHoraArr[1]?.trim() || '';
             
             agenda.push({
-                liga: agenda$(el).find('.match__lg_card--league').text().trim(),
-                casa: agenda$(el).find('.match__lg_card--ht-name').text().trim(),
-                fora: agenda$(el).find('.match__lg_card--at-name').text().trim(),
-                escudoCasa: agenda$(el).find('.match__lg_card--ht-logo img').attr('src'),
-                escudoFora: agenda$(el).find('.match__lg_card--at-logo img').attr('src'),
-                data: dateTimeArr?.[0]?.trim().replace(',', '') || 'Data a confirmar',
-                hora: dateTimeArr?.[1]?.trim() || ''
+                campeonato: $agenda(el).find('.match__lg_card--league').text().trim(),
+                mandante: $agenda(el).find('.match__lg_card--ht-name').text().trim(),
+                visitante: $agenda(el).find('.match__lg_card--at-name').text().trim(),
+                escudoMandante: $agenda(el).find('.match__lg_card--ht-logo img').attr('src') || FALLBACK_IMG,
+                escudoVisitante: $agenda(el).find('.match__lg_card--at-logo img').attr('src') || FALLBACK_IMG,
+                info: `${data} • ${hora}`,
+                status: 'agenda'
             });
         });
 
-        // 3. SCRAPER DE RESULTADOS (Placar de Futebol)
-        const { data: ultimosHtml } = await axios.get('https://www.placardefutebol.com.br/time/corinthians/ultimos-jogos');
-        const ultimos$ = cheerio.load(ultimosHtml);
-        let ultimos: JogoResultado[] = [];
+        // C) Últimos Resultados
+        const { data: ultimosData } = await axios.get('https://www.placardefutebol.com.br/time/corinthians/ultimos-jogos');
+        const $ultimos = cheerio.load(ultimosData);
+        const resultados: Jogo[] = [];
 
-        ultimos$('.match__lg').each((i, e) => {
-            ultimos.push({
-                liga: ultimos$(e).find('.match__lg_card--league').text().trim(),
-                casa: ultimos$(e).find('.match__lg_card--ht-name').text().trim(),
-                fora: ultimos$(e).find('.match__lg_card--at-name').text().trim(),
-                placar: ultimos$(e).find('.match__lg_card--scoreboard').text().trim(),
-                data: ultimos$(e).find('.match__lg_card--date').text().trim(),
-                escudoCasa: ultimos$(e).find('.match__lg_card--ht-logo img').attr('src')
+        $ultimos('.match__lg').slice(0, 5).each((_, el) => {
+            resultados.push({
+                campeonato: $ultimos(el).find('.match__lg_card--league').text().trim(),
+                mandante: $ultimos(el).find('.match__lg_card--ht-name').text().trim(),
+                visitante: $ultimos(el).find('.match__lg_card--at-name').text().trim(),
+                escudoMandante: $ultimos(el).find('.match__lg_card--ht-logo img').attr('src') || FALLBACK_IMG,
+                escudoVisitante: $ultimos(el).find('.match__lg_card--at-logo img').attr('src') || FALLBACK_IMG,
+                info: $ultimos(el).find('.match__lg_card--scoreboard').text().trim(),
+                status: 'resultado'
             });
         });
 
-        // --- GERAÇÃO DO HTML ---
-        console.log('🎨 Gerando HTML Premium...');
-        const html = generateHTML(noticias, agenda, ultimos);
-        
-        fs.writeFileSync('index.html', html);
-        console.log('✅ Arquivo index.html gerado com sucesso! Vai Corinthians!');
+        // --- 2. O GERADOR DE HTML (O Design) ---
+        console.log('🎨 Pintando o mundo de Preto e Branco...');
+        const htmlFinal = renderHTML(noticias, agenda, resultados);
+
+        // Salva o arquivo final
+        fs.writeFileSync('/Nunu/orinthians.html', htmlFinal);
+        console.log('✅ SUCESSO! Abra o arquivo "corinthians.html" no seu navegador.');
 
     } catch (error) {
-        console.error('❌ Erro ao rodar o scraper:', error);
+        console.error('❌ Deu ruim:', error);
     }
 }
 
-// --- TEMPLATE HTML/CSS (DESIGN) ---
-function generateHTML(noticias: Noticia[], agenda: JogoAgenda[], ultimos: JogoResultado[]): string {
-    const dataAtual = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-
-    // Ícone padrão caso a imagem falhe
-    const fallbackImage = 'https://s2-ge.glbimg.com/filters:format(webp)/g.globo/futebol/escudos/corinthians.svg';
+// Função que retorna a String do HTML Completo
+function renderHTML(noticias: Noticia[], agenda: Jogo[], resultados: Jogo[]) {
+    const proximoJogo = agenda[0]; // Pega o primeiro jogo da lista
 
     return `
 <!DOCTYPE html>
@@ -115,103 +104,108 @@ function generateHTML(noticias: Noticia[], agenda: JogoAgenda[], ultimos: JogoRe
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Timão | Vai Corinthians</title>
+    <title>Painel do Timão</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        timaoBlack: '#0a0a0a',
-                        timaoDark: '#121212',
-                        timaoGold: '#D4AF37',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #050505; color: #ffffff; }
-        .glass-panel { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .hover-card:hover { transform: translateY(-3px); border-color: #D4AF37; transition: all 0.3s ease; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        body { background-color: #000; color: #fff; font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-display { font-family: 'Rajdhani', sans-serif; text-transform: uppercase; }
+        .glass { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .gold-accent { color: #D4AF37; }
+        .border-gold { border-color: #D4AF37; }
+        .bg-gold { background-color: #D4AF37; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 10px 30px -10px rgba(212, 175, 55, 0.2); border-color: #D4AF37; }
+        .transition-all { transition: all 0.3s ease; }
     </style>
 </head>
-<body class="antialiased selection:bg-white selection:text-black">
+<body class="min-h-screen bg-[url('https://www.timaoweb.com.br/wp-content/uploads/2022/08/arena-neo-quimica-fiel.jpg')] bg-fixed bg-cover bg-center bg-no-repeat">
+    
+    <div class="fixed inset-0 bg-gradient-to-b from-black/90 via-black/80 to-black pointer-events-none z-0"></div>
 
-    <header class="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="relative z-10 max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        
+        <header class="flex items-center justify-between mb-10 pb-4 border-b border-white/10">
             <div class="flex items-center gap-3">
-                <img src="https://s2-ge.glbimg.com/filters:format(webp)/g.globo/futebol/escudos/corinthians.svg" alt="Corinthians" class="h-10 w-10 drop-shadow-lg">
-                <h1 class="text-xl font-bold tracking-tighter uppercase">Painel <span class="text-white/50">Timão</span></h1>
+                <img src="https://s2-ge.glbimg.com/filters:format(webp)/g.globo/futebol/escudos/corinthians.svg" class="w-14 h-14 drop-shadow-lg">
+                <div>
+                    <h1 class="text-3xl font-bold leading-none tracking-wider">Corinthians</h1>
+                    <p class="text-xs text-gray-400 font-sans tracking-widest">SCCP • 1910</p>
+                </div>
             </div>
-            <div class="text-xs text-white/40 font-mono hidden sm:block">
-                Atualizado: ${dataAtual}
+            <div class="hidden md:block text-right">
+                <p class="text-sm text-gray-400">Atualizado em</p>
+                <p class="font-mono text-gold-accent">${new Date().toLocaleString('pt-BR')}</p>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-8 space-y-12">
-
-        <section>
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold border-l-4 border-white pl-3">Próximos Confrontos</h2>
-            </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
-                ${agenda.length > 0 ? agenda.map(jogo => `
-                <div class="snap-center shrink-0 w-80 sm:w-96 glass-panel rounded-2xl p-6 relative group overflow-hidden">
-                    <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                        <img src="${jogo.escudoCasa || fallbackImage}" class="h-32 w-32 grayscale">
+            <div class="lg:col-span-4 space-y-8">
+                
+                ${proximoJogo ? `
+                <div class="glass rounded-2xl p-6 border-l-4 border-gold relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-gold text-black text-xs font-bold px-3 py-1 rounded-bl-lg">PRÓXIMO JOGO</div>
+                    <h2 class="text-xl font-bold mb-4 text-gray-200">${proximoJogo.campeonato}</h2>
+                    
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="flex flex-col items-center w-1/3">
+                            <img src="${proximoJogo.escudoMandante}" class="w-16 h-16 object-contain mb-2 drop-shadow">
+                            <span class="text-sm font-bold text-center leading-tight">${proximoJogo.mandante}</span>
+                        </div>
+                        <div class="text-2xl font-bold text-gray-500 font-display">VS</div>
+                        <div class="flex flex-col items-center w-1/3">
+                            <img src="${proximoJogo.escudoVisitante}" class="w-16 h-16 object-contain mb-2 drop-shadow">
+                            <span class="text-sm font-bold text-center leading-tight">${proximoJogo.visitante}</span>
+                        </div>
                     </div>
-                    <div class="relative z-10">
-                        <span class="text-xs font-bold tracking-widest text-timaoGold uppercase mb-2 block">${jogo.liga}</span>
-                        <div class="flex justify-between items-center my-4">
-                            <div class="flex flex-col items-center gap-2 w-1/3">
-                                <img src="${jogo.escudoCasa || fallbackImage}" class="h-12 w-12 object-contain">
-                                <span class="text-xs text-center font-semibold truncate w-full">${jogo.casa}</span>
-                            </div>
-                            <div class="text-2xl font-black text-white/20">VS</div>
-                            <div class="flex flex-col items-center gap-2 w-1/3">
-                                <img src="${jogo.escudoFora || fallbackImage}" class="h-12 w-12 object-contain">
-                                <span class="text-xs text-center font-semibold truncate w-full">${jogo.fora}</span>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-center gap-2 bg-white/5 py-2 rounded-lg mt-4 border border-white/5">
-                            <svg class="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            <span class="text-sm font-medium">${jogo.data} • ${jogo.hora}</span>
-                        </div>
+                    
+                    <div class="text-center bg-white/5 rounded-lg py-2 border border-white/5">
+                        <span class="text-gold-accent font-bold font-mono tracking-widest">${proximoJogo.info}</span>
                     </div>
                 </div>
-                `).join('') : '<div class="text-gray-500">Nenhum jogo agendado encontrado.</div>'}
-            </div>
-        </section>
+                ` : ''}
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            <div class="lg:col-span-2 space-y-6">
-                <h2 class="text-2xl font-bold border-l-4 border-white pl-3">Últimas Notícias</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    ${noticias.slice(0, 8).map(news => `
-                    <a href="${news.link}" target="_blank" class="block glass-panel rounded-xl overflow-hidden hover-card group">
-                        <div class="aspect-video w-full bg-neutral-900 relative overflow-hidden">
-                            ${news.imagem 
-                                ? `<img src="${news.imagem}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Imagem da notícia">`
-                                : `<div class="w-full h-full flex items-center justify-center text-white/10"><svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg></div>`
-                            }
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent"></div>
-                            <div class="absolute bottom-3 left-3">
-                                <span class="text-[10px] font-bold bg-timaoGold text-black px-2 py-0.5 rounded-sm uppercase">GE.Globo</span>
+                <div class="glass rounded-2xl p-6">
+                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-gray-500"></span> Últimos Resultados
+                    </h3>
+                    <div class="space-y-4">
+                        ${resultados.map(res => `
+                        <div class="flex items-center justify-between text-sm pb-3 border-b border-white/5 last:border-0 last:pb-0">
+                            <div class="flex items-center gap-2 w-[40%]">
+                                <img src="${res.escudoMandante}" class="w-6 h-6">
+                                <span class="truncate text-gray-300">${res.mandante}</span>
+                            </div>
+                            <span class="font-bold font-mono text-gold-accent bg-black/40 px-2 py-0.5 rounded">${res.info}</span>
+                            <div class="flex items-center gap-2 w-[40%] justify-end">
+                                <span class="truncate text-gray-300">${res.visitante}</span>
+                                <img src="${res.escudoVisitante}" class="w-6 h-6">
                             </div>
                         </div>
-                        <div class="p-4">
-                            <h3 class="font-semibold text-lg leading-tight text-gray-100 group-hover:text-white mb-2 line-clamp-2">${news.titulo}</h3>
-                            <div class="flex items-center gap-2 text-xs text-gray-400">
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-8">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <span class="w-1 h-6 bg-gold block"></span>
+                    Últimas do Timão
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${noticias.map(news => `
+                    <a href="${news.link}" target="_blank" class="glass rounded-xl overflow-hidden card-hover transition-all group flex flex-col">
+                        <div class="h-48 overflow-hidden relative">
+                            <img src="${news.imagem}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
+                            <span class="absolute bottom-2 right-2 text-[10px] bg-black/80 backdrop-blur text-white px-2 py-1 rounded uppercase tracking-wider">Ler mais</span>
+                        </div>
+                        <div class="p-5 flex-1 flex flex-col justify-between">
+                            <h3 class="text-lg leading-tight font-semibold text-gray-100 group-hover:text-gold-accent transition-colors mb-3">
+                                ${news.titulo}
+                            </h3>
+                            <div class="flex items-center gap-2 text-xs text-gray-500 font-sans mt-auto">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 ${news.horario}
                             </div>
@@ -220,45 +214,16 @@ function generateHTML(noticias: Noticia[], agenda: JogoAgenda[], ultimos: JogoRe
                     `).join('')}
                 </div>
             </div>
-
-            <div class="space-y-6">
-                <h2 class="text-2xl font-bold border-l-4 border-white pl-3">Últimos Resultados</h2>
-                <div class="glass-panel rounded-xl p-4 space-y-4">
-                    ${ultimos.length > 0 ? ultimos.slice(0, 5).map(res => `
-                    <div class="border-b border-white/5 last:border-0 pb-4 last:pb-0">
-                        <div class="flex justify-between text-[10px] text-gray-500 uppercase font-bold mb-2">
-                            <span>${res.liga}</span>
-                            <span>${res.data}</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm font-semibold w-1/3 text-right truncate">${res.casa}</span>
-                            <div class="bg-neutral-800 px-3 py-1 rounded text-white font-mono font-bold tracking-widest text-sm mx-2 border border-white/10">
-                                ${res.placar}
-                            </div>
-                            <span class="text-sm font-semibold w-1/3 text-left truncate">${res.fora}</span>
-                        </div>
-                    </div>
-                    `).join('') : '<p class="text-sm text-gray-500">Sem resultados recentes.</p>'}
-                </div>
-
-                <div class="mt-8 pt-8 border-t border-white/10 text-center">
-                    <p class="text-xs text-gray-500">Desenvolvido com paixão pelo Timão.</p>
-                </div>
-            </div>
-
         </div>
-    </main>
 
-    <footer class="bg-black py-8 mt-12 border-t border-white/10">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-             <img src="https://s2-ge.glbimg.com/filters:format(webp)/g.globo/futebol/escudos/corinthians.svg" alt="Corinthians" class="h-16 w-16 mx-auto mb-4 opacity-50 grayscale hover:grayscale-0 transition-all">
-             <p class="text-gray-600 text-sm">Dados obtidos de fontes públicas (GE & Placar de Futebol).</p>
-        </div>
-    </footer>
+        <footer class="mt-12 text-center text-gray-600 text-sm py-8 border-t border-white/10">
+            <p>Desenvolvido para a Fiel Torcida.</p>
+        </footer>
+    </div>
 </body>
 </html>
     `;
 }
 
-// Executa
-main();
+// Rodar o script
+scrapTimao();
