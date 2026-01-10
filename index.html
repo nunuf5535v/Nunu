@@ -2,1082 +2,450 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monaco Univers</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MONACO</title>
+    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #8b5cf6;
-            --accent: #06b6d4;
-            --bg-primary: #0f0f23;
-            --bg-secondary: #1a1a2e;
-            --bg-tertiary: #16213e;
-            --text-primary: #ffffff;
-            --text-secondary: #a1a1aa;
-            --text-muted: #71717a;
-            --border: #27272a;
+            /* Palette */
+            --bg-deep: #020204;
+            --bg-glass: rgba(20, 20, 30, 0.6);
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-card-hover: rgba(255, 255, 255, 0.06);
+            
+            /* Accents */
+            --primary: #7c3aed; /* Roxo Monaco */
+            --accent: #00d4ff;  /* Azul Cyan */
             --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
+            
+            /* Typography */
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --font-stack: 'Outfit', sans-serif;
+            
+            /* Layout & Effects */
+            --sidebar-width: 280px;
+            --radius-xl: 24px;
+            --radius-md: 16px;
+            --blur: blur(25px);
+            --border: 1px solid rgba(255, 255, 255, 0.08);
+            --glow: 0 0 20px rgba(124, 58, 237, 0.25);
+            
+            /* Animation */
+            --ease: cubic-bezier(0.23, 1, 0.32, 1);
         }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            overflow-x: hidden;
-            line-height: 1.6;
-        }
-        #rainCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0.3;
-        }
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 70px;
-            background: rgba(15, 15, 35, 0.95);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            z-index: 1000;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-stack);
+            height: 100vh;
             display: flex;
-            align-items: center;
-            padding: 0 2rem;
-            transition: all 0.3s ease;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 10% 20%, rgba(30, 20, 60, 0.4) 0%, transparent 60%),
+                              radial-gradient(circle at 90% 80%, rgba(0, 100, 255, 0.1) 0%, transparent 50%);
         }
 
-        .header.scrolled {
-            background: rgba(15, 15, 35, 0.98);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .logo:hover {
-            transform: scale(1.05);
-        }
-
-        .logo i {
-            font-size: 2rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        .header-right {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .datetime {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            padding: 0.5rem 1rem;
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            border: 1px solid var(--border);
-        }
-
-        .mobile-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .mobile-toggle:hover {
-            background: var(--bg-secondary);
-        }
-
-        /* Sidebar */
+        
         .sidebar {
-            position: fixed;
-            top: 70px;
-            left: 0;
-            width: 280px;
-            height: calc(100vh - 70px);
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border);
-            padding: 2rem 0;
-            overflow-y: auto;
-            transition: all 0.3s ease;
-            z-index: 999;
+            width: var(--sidebar-width);
+            height: 100%;
+            background: var(--bg-glass);
+            backdrop-filter: var(--blur);
+            border-right: var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            transition: transform 0.4s var(--ease);
+            z-index: 100;
         }
 
-        .sidebar.hidden {
-            transform: translateX(-100%);
+        .brand {
+            display: flex; align-items: center; gap: 12px;
+            font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px;
+            margin-bottom: 3rem; color: var(--text-main);
         }
+        .brand i { color: var(--primary); filter: drop-shadow(0 0 10px var(--primary)); }
 
-        .nav-section {
-            margin-bottom: 2rem;
-        }
-
-        .nav-title {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 0 1.5rem;
-            margin-bottom: 1rem;
+        .menu-label {
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--text-muted); margin: 1.5rem 0 0.8rem 0.5rem; font-weight: 700;
         }
 
         .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 0.75rem 1.5rem;
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border-left: 3px solid transparent;
-            cursor: pointer;
+            display: flex; align-items: center; gap: 15px;
+            padding: 14px 16px; margin-bottom: 5px;
+            border-radius: var(--radius-md);
+            color: var(--text-muted); cursor: pointer;
+            transition: all 0.3s ease; font-weight: 500;
+            text-decoration: none; border: 1px solid transparent;
         }
 
-        .nav-item:hover {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            border-left-color: var(--primary);
+        .nav-item:hover, .nav-item.active {
+            background: rgba(124, 58, 237, 0.1);
+            color: var(--text-main);
+            border-color: rgba(124, 58, 237, 0.2);
         }
+        .nav-item.active { box-shadow: var(--glow); }
+        .nav-item i { font-size: 1.1rem; width: 24px; text-align: center; }
 
-        .nav-item.active {
-            background: var(--bg-tertiary);
-            color: var(--primary);
-            border-left-color: var(--primary);
-        }
-
-        .nav-item i {
-            width: 20px;
-            text-align: center;
-        }
-
-        /* Main Content */
+        
         .main-content {
-            margin-left: 280px;
-            margin-top: 70px;
-            min-height: calc(100vh - 70px);
-            transition: all 0.3s ease;
+            flex: 1; display: flex; flex-direction: column;
+            position: relative; overflow: hidden;
         }
 
-        .main-content.expanded {
-            margin-left: 0;
+        header {
+            padding: 1.5rem 2.5rem;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
-        .content-wrapper {
-            padding: 3rem;
-            max-width: 1200px;
-            margin: 0 auto;
+        .welcome-text h1 { font-size: 1.8rem; font-weight: 700; }
+        .welcome-text p { color: var(--accent); font-size: 0.9rem; margin-top: 4px; letter-spacing: 0.5px; }
+
+        .date-badge {
+            background: rgba(255,255,255,0.05); padding: 8px 16px;
+            border-radius: 50px; border: var(--border);
+            font-size: 0.85rem; color: var(--text-muted);
+            display: flex; gap: 8px; align-items: center;
         }
 
-        .page {
-            display: none;
-            animation: fadeIn 0.5s ease;
+        /* Scrollable Area */
+        .content-scroll {
+            flex: 1; overflow-y: auto; padding: 0 2.5rem 2.5rem 2.5rem;
         }
 
-        .page.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .hero {
-            text-align: center;
-            padding: 4rem 0;
-            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
-            border-radius: 20px;
-            margin-bottom: 3rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
-            z-index: 1;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .cta-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 1rem 2rem;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
-        }
-
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
-        }
-
-        /* Cards */
-        .cards-grid {
+       
+        .grid-layout {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin: 3rem 0;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            animation: slideUp 0.6s var(--ease);
         }
 
         .card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 2rem;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            background: var(--bg-card);
+            border: var(--border);
+            border-radius: var(--radius-xl);
+            padding: 1.8rem;
+            position: relative; overflow: hidden;
+            transition: all 0.3s var(--ease);
+            cursor: pointer;
+            display: flex; flex-direction: column;
+            min-height: 200px;
+            text-decoration: none; /* Para links */
         }
 
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transform: translateY(-6px);
+            background: var(--bg-card-hover);
             border-color: var(--primary);
+            box-shadow: 0 15px 40px -10px rgba(0,0,0,0.6);
         }
 
+        /* Ícone com fundo brilhante */
         .card-icon {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 1rem;
+            width: 55px; height: 55px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; color: var(--text-main);
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .card:hover .card-icon { background: var(--primary); border-color: var(--primary); }
+
+        .card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main); }
+        .card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.5rem; flex: 1; }
+
+        .card-footer {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: auto;
         }
 
-        .card h3 {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--text-primary);
+        .tag {
+            font-size: 0.75rem; padding: 5px 12px; border-radius: 20px;
+            background: rgba(255,255,255,0.05); color: var(--text-muted);
+            font-weight: 600; letter-spacing: 0.5px;
         }
 
-        .card p {
-            color: var(--text-secondary);
-            line-height: 1.6;
+        .action-arrow {
+            width: 35px; height: 35px; border-radius: 50%;
+            background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center;
+            transition: 0.3s;
+        }
+        .card:hover .action-arrow { background: var(--accent); color: #000; transform: rotate(-45deg); }
+
+        /* Widget Especial de Tempo */
+        .card.special-time {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(0, 0, 0, 0));
+            border-color: rgba(124, 58, 237, 0.4);
         }
 
-        /* Status Indicators */
-        .status-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin: 2rem 0;
-        }
-
-        .status-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 1rem;
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-        }
-
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            animation: pulse-dot 2s infinite;
-        }
-
-        .status-dot.online { background: var(--success); }
-        .status-dot.warning { background: var(--warning); }
-        .status-dot.offline { background: var(--error); }
-
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* Code Blocks */
-        .code-block {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-            overflow-x: auto;
-            position: relative;
-        }
-
-        .code-block::before {
-            content: attr(data-lang);
-            position: absolute;
-            top: 0.5rem;
-            right: 1rem;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-
-        /* Responsive */
+       
+        .mobile-toggle { display: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
+        
         @media (max-width: 768px) {
-            .mobile-toggle {
-                display: block;
-            }
-
             .sidebar {
-                transform: translateX(-100%);
+                position: fixed; left: -100%; top: 0; bottom: 0; width: 85%;
+                box-shadow: 0 0 50px rgba(0,0,0,0.9);
             }
-
-            .sidebar.show {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            .content-wrapper {
-                padding: 1.5rem;
-            }
-
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .hero p {
-                font-size: 1rem;
-            }
-
-            .cards-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .header {
-                padding: 0 1rem;
-            }
-
-            .datetime {
-                display: none;
-            }
+            .sidebar.active { transform: translateX(100%); left: -85%; }
+            
+            .main-content { padding: 0; }
+            header { padding: 1.2rem 1.5rem; }
+            .content-scroll { padding: 1rem 1.5rem 6rem 1.5rem; } /* Padding bottom extra para mobile */
+            .mobile-toggle { display: block; }
+            .date-badge { display: none; } /* Ocultar data no header mobile para limpar */
+            .welcome-text h1 { font-size: 1.4rem; }
+            
+            /* Melhoria do Grid Mobile */
+            .grid-layout { grid-template-columns: 1fr; gap: 15px; }
+            .card { min-height: auto; flex-direction: row; align-items: center; padding: 1.2rem; }
+            .card-icon { width: 45px; height: 45px; font-size: 1.2rem; margin-bottom: 0; margin-right: 15px; }
+            .card-content-wrapper { flex: 1; }
+            .card p { display: none; } /* Resumo no mobile para ficar clean */
+            .card h3 { margin-bottom: 4px; font-size: 1.1rem; }
+            .card-footer { display: none; } /* Seta oculta no mobile lista */
         }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Overlay para fechar menu no mobile */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
+            z-index: 90; display: none; opacity: 0; transition: 0.3s;
         }
+        .overlay.active { display: block; opacity: 1; }
 
-        ::-webkit-scrollbar-track {
-            background: var(--bg-primary);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-muted);
-        }
-
-        /* Loading Animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid var(--border);
-            border-radius: 50%;
-            border-top-color: var(--primary);
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Notification */
-        .notification {
-            position: fixed;
-            top: 90px;
-            right: 2rem;
-            padding: 1rem 1.5rem;
-            background: var(--success);
-            color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            transform: translateX(400px);
-            transition: all 0.3s ease;
-            z-index: 1001;
-        }
-
-        .notification.show {
-            transform: translateX(0);
-        }
     </style>
 </head>
 <body>
-    <canvas id="rainCanvas"></canvas>
 
-    <header class="header" id="header">
-        <a href="#" class="logo" onclick="showPage('home')">
-            <i class="fas fa-crown"></i>
-            Monaco Univers
-        </a>
-        <div class="header-right">
-            <div class="datetime" id="datetime"></div>
-            <button class="mobile-toggle" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-    </header>
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
     <nav class="sidebar" id="sidebar">
-        <div class="nav-section">
-            <div class="nav-title">Principal</div>
-            <a class="nav-item active" onclick="showPage('home')">
-                <i class="fas fa-home"></i>
-                Início
-            </a>
-            <a class="nav-item" onclick="showPage('monaco')">
-                <i class="fas fa-crown"></i>
-                Monaco
-            </a>
-            <a class="nav-item" onclick="showPage('docs')">
-                <i class="fas fa-book"></i>
-                Documentação
-            </a>
+        <div class="brand">
+            <i class="fas fa-biohazard"></i> MONACO
         </div>
 
-        <div class="nav-section">
-            <div class="nav-title">Conteúdo</div>
-            <a class="nav-item" onclick="showPage('filmes')">
-                <i class="fas fa-play"></i>
-                Filmes
-            </a>
-        </div>
-
-        <div class="nav-section">
-            <div class="nav-title">Recursos</div>
-
-            <a class="nav-item" onclick="showPage('support')">
-                <i class="fas fa-headset"></i>
-                Suporte
-            </a>
-        </div>
+        <div id="nav-container"></div>
     </nav>
 
-    <main class="main-content" id="mainContent">
-    
-        <!-- começo, home nunu-->
-        <div class="page active" id="home">
-            <div class="content-wrapper">
-                <div class="hero">
-                    <div class="hero-content">
-                        <h1>Monaco Univers</h1>
-                        <p>a maior, e melhor comunidade da web, a mais completa, conheça ja.</p>
-                        <a href="#" class="cta-button" onclick="showPage('monaco')">
-                            <i class="fas fa-rocket"></i>
-                            parcerias e links
-                        </a>
-                    </div>
-                </div>
-
-                <div class="status-grid">
-                    <div class="status-item">
-                        <div class="status-dot online"></div>
-                        <span>Sistema Online</span>
-                    </div>
-                    <div class="status-item">
-                        <div class="status-dot online"></div>
-                        <span>nunu te ama</span>
-                    </div>
-                </div>
-
-
-
-                <div class="cards-grid">
-                    <div class="card">
-                        <div class="card-icon">
-                            <i class="fas fa-video"></i>
-                        </div>
-                        <h3>FILMES</h3>
-                        <p>AQUI VOCE ENCONTRA TODO TIPO DE FILME, POISE!</p>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-icon">
-                            <i class="fas fa-code"></i>
-                        </div>
-                        <h3>scripts</h3>
-                        <p>melhores scripts, cases, scrapers e muito mais só aqui</p>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-icon">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <h3>canal principal</h3>
-                        <p>https://whatsapp.com/channel/0029VaKoRrpJkK76x4lJfs40</p>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-icon">
-                            <i class="fas fa-download"></i>
-                        </div>
-                        <h3>Mods</h3>
-                        <p>aqui tem mods, e muito mais, poise!!!</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Monaco pagina -->
-        <div class="page" id="monaco">
-<div id="redirecting-screen" style="display: none; position: fixed; top: 0; left: 0; 
-    width: 100%; height: 100%; background: #111; color: white; 
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    z-index: 9999; font-family: sans-serif;">
-    <h2>⏳ Encaminhando para a Área...</h2>
-    <p>Por favor, aguarde um instante.</p>
-    <div class="loader" style="margin-top: 20px;">
-        <div style="border: 4px solid #333; border-top: 4px solid #fff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
-    </div>
-</div>
-
-<style>
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-</style>
-
-                <div class="cards-grid">
-                    <div class="card">
-                        <div class="card-icon">
-                            <i class="fas fa-crown"></i>
-                        </div>
-                        <h3>Conteúdo VIP</h3>
-                        <p>Acesso exclusivo a conteúdos premium, lives privadas e materiais especiais.</p>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-icon">
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <h3>Recursos Avançados</h3>
-                        <p>Ferramentas e recursos exclusivos para membros premium do Monaco.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-<!-- docs documentos -->
-<div class="page" id="docs">
-  <div class="content-wrapper">
-    <h1>🧩 API MONACO</h1>
-    <div class="cards-grid">
-<div class="card">
-    <div class="card-icon">
-        <i class="fas fa-sticky-note"></i>
-    </div>
-    <h3>Brat</h3>
-    <p>Converta texto em figurinhas WebP direto para o WhatsApp.</p>
-    <a href="/Nunu/brat.html" class="cta-button">
-        <i class="fas fa-paper-plane"></i> Usar Brat
-    </a>
-</div>
-
-<div class="card">
-    <div class="card-icon">
-        <i class="fas fa-futbol"></i> 
-    </div>
-    <h3>CORINTHIANS</h3>
-    <p>NOTÍCIAS DO TIMÃO.</p>
-    <a href="/Nunu/corinthians.html" class="cta-button">
-        <i class="fas fa-paper-plane"></i> Acessar
-    </a>
-</div>
-<div class="card">
-    <div class="card-icon">
-        <i class="fas fa-gamepad"></i>
-    </div>
-    <h3>CAMPO MINADO</h3>
-    <p>JOGO</p>
-    <a href="/Nunu/campominado.html" class="cta-button">
-        <i class="fas fa-paper-plane"></i> jogar
-    </a>
-</div>
-<div class="card">
-    <div class="card-icon">
-        <i class="fas fa-tint"></i> 
-    </div>
-    <h3>JOGO DA ÁGUA</h3>
-    <p>JOGO</p>
-    <a href="/Nunu/water.html" class="cta-button">
-        <i class="fas fa-paper-plane"></i> jogar
-    </a>
-</div>
-<div class="card">
-    <div class="card-icon">
-        <i class="fas fa-cloud-sun"></i>
-    </div>
-    <h3>PREVISÃO DO TEMPO</h3>
-    <p>clima</p>
-    <a href="/Nunu/clima.html" class="cta-button">
-        <i class="fas fa-paper-plane"></i> ver
-    </a>
-</div>
-        
-    </div>
-  </div>
-</div>
-
-<!-- Filmes -->
-<div class="page" id="filmes">
-    <div class="content-wrapper">
-        <h1>🎬 Monaco UNIVERS</h1>
-        <p>FILMES EXCLUSIVOS:</p>
-        <div class="cards-grid">
-            <div class="card">
-                <div class="card-icon">🌭</div>
-                <h3>Festa da Salsicha</h3>
-                <p>🎬 Dublado • Sem aceleração • Exclusivo Monaco</p>
-                <a href="https://mega.nz/file/pK9DGBJT#uZ80v9VNm2HbuBx5wAcLAsxidpmohhhpLSWP03FJ3Xk" target="_blank" class="card-button">🍿 Assistir</a>
-            </div>
-
-            <div class="card">
-                <div class="card-icon">⛏️</div>
-                <h3>Minecraft: O Filme</h3>
-                <p>🎬 Dublado • 100% Completo • Monaco Filmes</p>
-                <a href="https://mega.nz/file/ZC0miZhB#hKWd_DPh8vK7Z66bB2JAQ086l9mMTB6MKpZK6DMnjxQ" target="_blank" class="card-button">🍿 Assistir</a>
-            </div>
-
-            <div class="card">
-                <div class="card-icon">👻</div>
-                <h3>Invocação do Mal 2</h3>
-                <p>🎬 Terror • Dublado • Exclusivo</p>
-                <a href="https://mega.nz/file/dekTUS5A#e7sQVESZZMlvLTW9hM4eHgrdiyxmNMOovOziftNS3qg" target="_blank" class="card-button">🍿 Assistir</a>
-            </div>
-
-            <div class="card">
-                <div class="card-icon">🚗</div>
-                <h3>Carros</h3>
-                <p>🎬 Animação • Dublado • Monaco Kids</p>
-                <a href="https://mega.nz/file/xSdj1DAL#UCeHnwu_kuBB9J2VszBmwEAHo-ce5vbKomEg_XoYe5M" target="_blank" class="card-button">🍿 Assistir</a>
-            </div>
-
-            <div class="card">
-                <div class="card-icon">🔥</div>
-                <h3>Velozes e Furiosos 1</h3>
-                <p>🎬 Ação • Corrida • Monaco Filmes</p>
-                <a href="https://mega.nz/file/ZP9nVKZT#KeXWI03amTMoxzvaJppP0THnoVupRWNUsdO7kqFpjh8" target="_blank" class="card-button">🍿 Assistir</a>
-            </div>
-
-            <div class="card">
-                <div class="card-icon">🥋</div>
-                <h3>Karate Kid: Lendas (2025)</h3>
-                <p>🎞️ Ação • Drama • Lançamento Exclusivo</p>
-                <a href="https://mega.nz/file/oDEnTJgA#uXywBu_sPHv_Bd9zU0azgHDJvXdQj9dEtNoW1q4i0vM" target="_blank" class="card-button">🍿 Assistir</a>
-            </div>
+    <main class="main-content">
+        <header>
+            <div class="mobile-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
             
-            <div class="card">
-    <div class="card-icon">🏌️</div>
-    <h3>Um Maluco no Golfe 2 (2025)</h3>
-    <p>🎞️ Comédia • Esporte • Lançamento Exclusivo</p>
-    <a href="https://www.mediafire.com/file/y359oq4k0zu1jb9/Um+Maluco+no+Golfe+2-+NUNU+AKAME.mp4/file" target="_blank" class="card-button">🍿 Assistir</a>
-</div>
-
-<div class="card">
-    <div class="card-icon">🎤</div>
-    <h3>Guerreiras do K-Pop (2025)</h3>
-    <p>🎞️ Musical • Ação • Exclusivo</p>
-    <a href="https://www.mediafire.com/file/intr2pqw51cavnl/Guerreiras+do+K-Pop-NUNU+AKAME.mp4/file" target="_blank" class="card-button">🍿 Assistir</a>
-</div>
-<div class="card">
-    <div class="card-icon">💋</div>
-    <h3>A Barraca do Beijo (2018)</h3>
-    <p>🎞️ Romance • Comédia • Teen</p>
-    <a href="https://www.mediafire.com/file/bl874mtfqh6j11l/A+Barraca+do+Beijo-NUNU+AKAME.mp4/file" target="_blank" class="card-button">🍿 Assistir</a>
-</div>
-<div class="card">
-    <div class="card-icon">🩸</div>
-    <h3>Terrifier: O Início (2023)</h3>
-    <p>🎞️ Terror • Slasher • Exclusivo</p>
-    <a href="https://www.mediafire.com/file/76d9prd9jm4vsg8/Terrifier+O+Início-NUNU+AKAME.mp4/file" target="_blank" class="card-button">🍿 Assistir</a>
-</div>
-<div class="card">
-    <div class="card-icon">📚</div>
-    <h3>Turma da Mônica: Lições (2021)</h3>
-    <p>🎞️ Aventura • Família • Nacional</p>
-    <a href="https://www.mediafire.com/file/soajjny20bg7nf4/Turma+da+Mônica+Lições-+NUNU+AKAME.mp4/file" target="_blank" class="card-button">🍿 Assistir</a>
-</div>
-<div class="card">
-    <div class="card-icon">💌</div>
-    <h3>Para Todos os Garotos que Já Amei (2018)</h3>
-    <p>🎞️ Romance • Comédia • Teen</p>
-    <a href="https://www.mediafire.com/file/y79u83tmckunrl7/Para+Todos+os+Garotos+que+Já+Amei-+NUNU+AKAME.mp4/file" target="_blank" class="card-button">🍿 Assistir</a>
-</div>
-<div class="card">
-    <div class="card-icon">🧠</div>
-    <h3>Divertida Mente (2015)</h3>
-    <p>🎞️ Animação • Família • Comédia</p>
-    <a href="https://www.mediafire.com/file/kt7hdzq70xsiu8d/Divertida+Mente-+NUNU+AKAME.mp4/file" target="_blank" class="card-button">🍿 Assistir</a>
-</div>
-<div class="card">
-    <div class="card-icon">💄</div>
-    <h3>As Branquelas (2004)</h3>
-    <p>🎞️ Comédia • Policial • Clássico</p>
-    <a href="https://www.mediafire.com/file/zzcj31nibo10ul7/as+branquelas-+NUNU+AKAME.mp4/file" target="_blank" class="card-button">🍿 Assistir</a>
-</div>
-<div class="card">
-    <div class="card-icon">🕷️</div>
-    <h3>Homem-Aranha 3 (2007)</h3>
-    <p>🎞️ Ação • Super-herói • Fantasia</p>
-    <a href="https://www.mediafire.com/file/mwgr8qnigbvjax3/Homem-Aranha+3-+NUNU+AKAME.mp4/file" target="_blank" class="card-button">🍿 Assistir</a>
-</div>
-<div class="card">
-    <div class="card-icon">👁️‍🗨️</div>
-    <h3>A Entidade (2012)</h3>
-    <p>🎞️ Terror • Sobrenatural • Exclusivo</p>
-    <a href="http://www.mediafire.com/file/b5j52a2d9p1my1n/A_Entidade-_NUNU_AKAME.mp4" target="_blank" class="card-button">🍿 Assistir</a>
-</div>
-<div class="card">
-    <div class="card-icon">🐇</div>
-    <h3>Alice no País das Maravilhas (1951)</h3>
-    <p>🎞️ Animação • Fantasia • Aventura</p>
-    <a href="https://www.mediafire.com/file/i7orn49illnutxp/Alice_no_Pa%25C3%25ADs_das_Maravilhas-_NUNU_AKAME.mp4/file" target="_blank" class="card-button">🍿 Assistir</a>
-</div>
-<div class="card">
-    <div class="card-icon">🐉</div>
-    <h3>Como Treinar o Seu Dragão (2025)</h3>
-    <p>🎞️ Animação • Fantasia • Lançamento Exclusivo</p>
-    <a href="https://mega.nz/file/NHc2HQCT#kGg8i9kjW8G72YUSnyFyuy7DPIboXdaSrjhqFzGIKzA" target="_blank" class="card-button">🍿 Assistir</a>
-</div>
-<div class="card">
-    <div class="card-icon">🎲</div>
-    <h3>Maldita Sorte (2007)</h3>
-    <p>🎞️ Comédia • Romance • Exclusivo</p>
-    <a href="https://mega.nz/file/5D1xxTCY#hZjClOeNevWop3wksipG8uvjREH4AGvOocfe9RNzcxM" target="_blank" class="card-button">🍿 Assistir</a>
-</div>
-<div class="card">
-    <div class="card-icon">🕳️</div>
-    <h3>O Poço (2019)</h3>
-    <p>🎞️ Ficção • Suspense • Drama</p>
-    <a href="http://www.mediafire.com/file/fw31xv471411jci/O_Po%C3%A7o-NUNU_AKAME.mp4" target="_blank" class="card-button">🍿 Assistir</a>
-</div>
-<div class="card">
-    <div class="card-icon">🥋</div>
-    <h3>Karate Kid: Lendas (2025)</h3>
-    <p>🎞️ Ação • Drama • Lançamento Exclusivo</p>
-    <a href="https://mega.nz/file/oDEnTJgA#uXywBu_sPHv_Bd9zU0azgHDJvXdQj9dEtNoW1q4i0vM" target="_blank" class="card-button">🍿 Assistir</a>
-</div>
-
-        </div>
-    </div>
-</div>
-        <!-- Support Page -->
-        <div class="page" id="support">
-            <div class="content-wrapper">
-                <h1>🎧 Suporte</h1>
-                <p>Precisa de ajuda? Entre em contato conosco</p>
-
-                <div class="cards-grid">
-                    <div class="card">
-                        <div class="card-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <h3>Email</h3>
-                        <p>nunesch03@gmail.com</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">
-                            <i class="fab fa-whatsapp"></i>
-                        </div>
-                        <h3>WhatsApp</h3>
-                        <p>+55 11 95939-1525</p>
-                    </div>
-                </div>
+            <div class="welcome-text">
+                <h1 id="greeting">NUNU DOMINA</h1>
+                <p>NUNU AKAME TE AMA</p>
             </div>
+
+            <div class="date-badge">
+                <i class="far fa-calendar-alt"></i>
+                <span id="date-display">...</span>
+            </div>
+        </header>
+
+        <div class="content-scroll">
+            <div id="app-container" class="grid-layout">
+                </div>
         </div>
     </main>
 
-    <div class="notification" id="notification">
-        <i class="fas fa-check-circle"></i>
-        Página carregada com sucesso!
-    </div>
-
     <script>
 
-        const canvas = document.getElementById('rainCanvas');
-        const ctx = canvas.getContext('2d');
+        const SISTEMA_CONFIG = {
+            menus: [
+                { id: 'dashboard', icon: 'fa-grid-2', label: 'MONACO' },
+                { id: 'filmes', icon: 'fa-film', label: 'Cine Monaco' },
+                { id: 'apps', icon: 'fa-layer-group', label: 'Apps & Ferramentas' },
+                { id: 'scripts', icon: 'fa-code', label: 'Scripts' }
+            ],
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
+            
+            conteudo: {
+                dashboard: [
+                    { 
+                        title: "Cronologia", 
+                        desc: "Visualize o tempo passado ou restante para eventos.", 
+                        icon: "fa-hourglass-half", 
+                        link: "/Timemonaconunu.html",
+                        tag: "Widget",
+                        specialClass: "special-time"
+                    },
+                    { title: "Clima Tempo", desc: "Previsão meteorológica em tempo real.", icon: "fa-cloud-sun", link: "/clima.html", tag: "App" },
+                    { title: "Brat Tool", desc: "Gerador de texto estilizado.", icon: "fa-font", link: "/Nunu/brat.html", tag: "Viral" },
+                    { title: "Corinthians", desc: "Acompanhe o Timão.", icon: "fa-futbol", link: "/corinthians.html", tag: "Sport" }
+                ],
+                
+                filmes: [
+                    { title: "Minecraft: O Filme", desc: "Lançamento Exclusivo 2025.", icon: "fa-cube", link: "https://mega.nz/file/ZC0miZhB#hKWd_DPh8vK7Z66bB2JAQ086l9mMTB6MKpZK6DMnjxQ", tag: "Novo" },
+                    { title: "Festa da Salsicha", desc: "Animação adulta (Sem Cortes).", icon: "fa-hotdog", link: "https://mega.nz/file/pK9DGBJT#uZ80v9VNm2HbuBx5wAcLAsxidpmohhhpLSWP03FJ3Xk", tag: "+18" },
+                    { title: "Invocação do Mal 2", desc: "Terror sobrenatural dublado.", icon: "fa-ghost", link: "https://mega.nz/file/dekTUS5A#e7sQVESZZMlvLTW9hM4eHgrdiyxmNMOovOziftNS3qg", tag: "Terror" },
+                    { title: "Carros", desc: "Clássico Disney Pixar.", icon: "fa-car-side", link: "https://mega.nz/file/xSdj1DAL#UCeHnwu_kuBB9J2VszBmwEAHo-ce5vbKomEg_XoYe5M", tag: "Família" },
+                    { title: "Velozes e Furiosos", desc: "Ação pura.", icon: "fa-tachometer-alt", link: "https://mega.nz/file/ZP9nVKZT#KeXWI03amTMoxzvaJppP0THnoVupRWNUsdO7kqFpjh8", tag: "Ação" },
+                    { title: "Terrifier: Origem", desc: "Terror Gore Extremo.", icon: "fa-mask", link: "https://www.mediafire.com/file/76d9prd9jm4vsg8/Terrifier+O+Início-NUNU+AKAME.mp4/file", tag: "Gore" }
+                ],
 
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+                apps: [
+                    { title: "Campo Minado", desc: "Clássico jogo de lógica.", icon: "fa-bomb", link: "/campominado.html", tag: "Game" },
+                    { title: "Clima", desc: "Verifique o tempo na sua região.", icon: "fa-cloud-moon-rain", link: "/clima.html", tag: "Util" },
+                    { title: "Corinthians Hub", desc: "Notícias e jogos do Timão.", icon: "fa-trophy", link: "/corinthians.html", tag: "Info" },
+                    { title: "Brat Generator", desc: "Crie stickers com a fonte Brat.", icon: "fa-wand-magic", link: "/Nunu/brat.html", tag: "Edição" }
+                ],
 
-        const raindrops = [];
-        const maxRaindrops = 100;
-
-        class Raindrop {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.length = Math.random() * 20 + 10;
-                this.speed = Math.random() * 3 + 2;
-                this.opacity = Math.random() * 0.5 + 0.2;
+                scripts: [
+                    { 
+                        title: "Bot WhatsApp MD", 
+                        desc: "Script base atualizado para automação.", 
+                        icon: "fa-robot", 
+                        link: "https://mega.nz/file/ML1XjaLa#W8y9giefK2A7RRXcXMfJVSjufJPJuTIlPDKpo9MhpEM", 
+                        tag: "Download" 
+                    }
+                ]
             }
-
-            update() {
-                this.y += this.speed;
-                if (this.y > canvas.height) {
-                    this.y = -this.length;
-                    this.x = Math.random() * canvas.width;
-                }
-            }
-
-            draw() {
-                ctx.strokeStyle = `rgba(99, 102, 241, ${this.opacity})`;
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(this.x, this.y);
-                ctx.lineTo(this.x, this.y + this.length);
-                ctx.stroke();
-            }
-        }
-
-      
-        for (let i = 0; i < maxRaindrops; i++) {
-            raindrops.push(new Raindrop());
-        }
-
-        function chuvanim() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            raindrops.forEach(drop => {
-                drop.update();
-                drop.draw();
-            });
-
-            requestAnimationFrame(chuvanim);
-        }
-
-        chuvanim();
-
-        
-        function updateDateTime() {
-            const now = new Date();
-            const options = {
-                weekday: 'short',
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            };
-            
-            document.getElementById('datetime').textContent = now.toLocaleDateString('pt-BR', options);
-            document.getElementById('lastUpdate').textContent = now.toLocaleDateString('pt-BR');
-        }
-
-        updateDateTime();
-        setInterval(updateDateTime, 1000);
-    
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-
-            
-            document.getElementById(pageId).classList.add('active');
-
-            
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-
-            event.target.classList.add('active');
-
-
-            showNotification(`Página ${pageId} carregada!`);
-
-            
-if (pageId === 'monaco') {
-    window.location.href = '/Nunu/MONACO.html';
-}
-
-            
-            if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('show');
-            }
-        }
-
-        
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('show');
-        }
-
-        
-        window.addEventListener('scroll', () => {
-            const header = document.getElementById('header');
-            if (window.scrollY > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        });
-
-        
-        function showNotification(message) {
-            const notification = document.getElementById('notification');
-            notification.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
-        }
-
-        
-        window.addEventListener('popstate', (event) => {
-            if (event.state && event.state.page) {
-                showPage(event.state.page);
-            }
-        });
-
-        
-        const routes = {
-            '/': 'home',
-            '/MONACO.html': 'monaco',
-            '/docs': 'docs',
-            '/filmes': 'filmes',
-            '/support': 'support',
-            '/about': 'about'
         };
 
         
-        function addRoute(path, pageId) {
-            routes[path] = pageId;
+        class MonacoSystem {
+            constructor() {
+                this.navContainer = document.getElementById('nav-container');
+                this.appContainer = document.getElementById('app-container');
+                this.currentPage = 'dashboard';
+                
+                this.init();
+            }
+
+            init() {
+                this.renderNavigation();
+                this.renderPage('dashboard');
+                this.startClock();
+            }
+
+            renderNavigation() {
+                let html = '';
+                html += `<div class="menu-label">Navegação</div>`;
+                
+                SISTEMA_CONFIG.menus.forEach(menu => {
+                    html += `
+                        <div class="nav-item ${menu.id === 'dashboard' ? 'active' : ''}" 
+                             onclick="System.renderPage('${menu.id}', this)">
+                            <i class="fas ${menu.icon}"></i>
+                            <span>${menu.label}</span>
+                        </div>
+                    `;
+                });
+
+                
+                html += `<div style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem"></div>`;
+                html += `<div class="nav-item" style="color: #ef4444;" onclick="alert('Sistema finalizado.')">
+                            <i class="fas fa-power-off"></i> <span>Desligar</span>
+                         </div>`;
+
+                this.navContainer.innerHTML = html;
+            }
+
+            renderPage(pageId, element = null) {
+                if (element) {
+                    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                    element.classList.add('active');
+                    
+                    if (window.innerWidth < 768) toggleMenu();
+                }
+                this.appContainer.style.opacity = '0';
+                this.appContainer.style.transform = 'translateY(10px)';
+                
+                setTimeout(() => {
+                    const cardsData = SISTEMA_CONFIG.conteudo[pageId] || [];
+                    const pageTitle = SISTEMA_CONFIG.menus.find(m => m.id === pageId)?.label || 'Dashboard';
+                    document.getElementById('greeting').innerText = pageTitle;
+
+                    let html = '';
+                    
+                    if (cardsData.length === 0) {
+                        html = `<div style="text-align:center; padding: 2rem; color: var(--text-muted)">Sem itens nesta seção.</div>`;
+                    } else {
+                        cardsData.forEach(item => {
+
+                            const extraClass = item.specialClass || '';
+                            
+                            html += `
+                                <div class="card ${extraClass}" onclick="window.location.href='${item.link}'">
+                                    ${window.innerWidth < 768 ? 
+                                        
+                                        `<div style="display:flex; align-items:center; width:100%">
+                                            <div class="card-icon"><i class="fas ${item.icon}"></i></div>
+                                            <div class="card-content-wrapper">
+                                                <h3>${item.title}</h3>
+                                                <span class="tag">${item.tag}</span>
+                                            </div>
+                                            <i class="fas fa-chevron-right" style="color:var(--text-muted)"></i>
+                                        </div>` 
+                                        : 
+                                        
+                                        `<div class="card-icon"><i class="fas ${item.icon}"></i></div>
+                                         <h3>${item.title}</h3>
+                                         <p>${item.desc}</p>
+                                         <div class="card-footer">
+                                             <span class="tag">${item.tag}</span>
+                                             <div class="action-arrow"><i class="fas fa-arrow-right"></i></div>
+                                         </div>`
+                                    }
+                                </div>
+                            `;
+                        });
+                    }
+
+                    this.appContainer.innerHTML = html;
+                    
+                    
+                    this.appContainer.style.opacity = '1';
+                    this.appContainer.style.transform = 'translateY(0)';
+                }, 200);
+            }
+
+            startClock() {
+                const dateEl = document.getElementById('date-display');
+                const update = () => {
+                    const now = new Date();
+                    const options = { weekday: 'long', day: 'numeric', month: 'long' };
+                    dateEl.innerText = now.toLocaleDateString('pt-BR', options);
+                };
+                update();
+                setInterval(update, 60000);
+            }
         }
 
-      
-        document.addEventListener('DOMContentLoaded', () => {
-            showNotification('Monaco Univers carregado com sucesso!');
-        });
-
-       
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-
         
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey || e.metaKey) {
-                switch(e.key) {
-                    case 'h':
-                        e.preventDefault();
-                        showPage('home');
-                        break;
-                    case 'm':
-                        e.preventDefault();
-                        showPage('monaco');
-                        break;
-                    case 'd':
-                        e.preventDefault();
-                        showPage('docs');
-                        break;
-                }
-            }
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+
+        const System = new MonacoSystem();
+        
+
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                const current = document.querySelector('.nav-item.active');
+                if(current) System.renderPage(current.getAttribute('onclick').match(/'([^']+)'/)[1]);
+            }, 200);
         });
+
     </script>
 </body>
 </html>
