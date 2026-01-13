@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Chronos Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg-body: #000000;
+    --bg-surface: #0f0f11;
+    --bg-surface-hover: #1a1a1d;
+    --border: #27272a;
+    --primary: #3b82f6;
+    --accent-game-x: #06b6d4;
+    --accent-game-o: #f43f5e;
+    --text-main: #ffffff;
+    --text-muted: #a1a1aa;
+    --font: 'Inter', sans-serif;
+    --nav-height: 65px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    font-family: var(--font);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+button { font-family: inherit; border: none; cursor: pointer; background: none; color: inherit; outline: none; }
+input { font-family: inherit; outline: none; }
+
+.app-layout {
+    display: flex;
+    flex: 1;
+    height: 100%;
+    overflow: hidden;
+}
+
+.sidebar-desktop {
+    width: 260px;
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border);
+    padding: 24px;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.brand {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-main);
+    letter-spacing: -1px;
+}
+
+.nav-btn {
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: 0.2s;
+    background: transparent;
+}
+
+.nav-btn:hover { background: var(--bg-surface-hover); color: var(--text-main); }
+.nav-btn.active { background: #1e1e24; color: var(--text-main); border: 1px solid var(--border); }
+.nav-btn svg { width: 20px; height: 20px; }
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.view-section {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+    animation: fadeIn 0.3s ease;
+}
+
+.view-section.active { display: flex; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.header-top {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    border-bottom: 1px solid var(--border);
+    height: 70px;
+}
+
+.month-nav { display: flex; align-items: center; gap: 16px; }
+.month-label { font-size: 18px; font-weight: 700; min-width: 140px; letter-spacing: -0.5px; }
+
+.btn-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+}
+.btn-icon:active { transform: scale(0.92); }
+
+.btn-main {
+    background: var(--text-main);
+    color: black;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex; align-items: center; gap: 8px;
+    transition: 0.2s;
+}
+.btn-main:active { transform: scale(0.96); opacity: 0.9; }
+
+.calendar-body {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+    height: calc(100% - 70px);
+}
+
+.cal-grid-box {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.week-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+}
+.week-day { text-align: center; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+.days-container {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: 1fr;
+    flex: 1;
+}
+
+.day-cell {
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 8px;
+    cursor: pointer;
+    position: relative;
+    display: flex; flex-direction: column;
+}
+.day-cell:nth-child(7n) { border-right: none; }
+.day-cell.muted { background: rgba(255,255,255,0.02); pointer-events: none; opacity: 0.5; }
+.day-cell.selected { background: rgba(255,255,255,0.05); }
+
+.day-num {
+    font-size: 14px; font-weight: 600;
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+}
+.day-cell.today .day-num { background: var(--primary); color: white; box-shadow: 0 0 10px rgba(59, 130, 246, 0.4); }
+
+.event-marker {
+    width: 100%; height: 4px;
+    border-radius: 2px;
+    margin-top: auto;
+    background: transparent;
+    display: flex; gap: 2px; padding: 0 4px;
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; }
+
+.side-panel {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 20px;
+    display: flex; flex-direction: column; gap: 16px;
+}
+
+.event-card {
+    background: var(--bg-body);
+    padding: 14px;
+    border-radius: 12px;
+    border-left: 3px solid var(--primary);
+    position: relative;
+}
+.event-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.event-card span { font-size: 12px; color: var(--text-muted); }
+.del-btn { position: absolute; right: 10px; top: 10px; opacity: 0.4; padding: 5px; }
+
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 20px;
+}
+
+.game-status {
+    font-size: 18px;
+    margin-bottom: 30px;
+    color: var(--text-muted);
+    font-weight: 500;
+    height: 24px;
+}
+
+.tic-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    background: var(--border);
+    padding: 8px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 340px;
+    aspect-ratio: 1/1;
+}
+
+.tic-cell {
+    background: var(--bg-surface);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.tic-cell:active { transform: scale(0.95); }
+.tic-cell.x { color: var(--accent-game-x); text-shadow: 0 0 15px rgba(6, 182, 212, 0.3); }
+.tic-cell.o { color: var(--accent-game-o); text-shadow: 0 0 15px rgba(244, 63, 94, 0.3); }
+
+.game-controls { margin-top: 40px; display: flex; gap: 20px; }
+.btn-game {
+    padding: 12px 24px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.mobile-bar {
+    display: none;
+    position: fixed; bottom: 0; left: 0; width: 100%;
+    background: rgba(15,15,17,0.95);
+    backdrop-filter: blur(15px);
+    border-top: 1px solid var(--border);
+    height: var(--nav-height);
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom);
+    justify-content: space-around;
+    align-items: center;
+}
+
+.mobile-item {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    font-size: 10px; font-weight: 600; color: var(--text-muted);
+    width: 60px;
+}
+.mobile-item.active { color: var(--text-main); }
+.mobile-item.active svg { stroke: var(--text-main); }
+.mobile-item svg { width: 22px; height: 22px; stroke: var(--text-muted); stroke-width: 2; fill: none; }
+
+.fab {
+    position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+    width: 54px; height: 54px;
+    background: var(--text-main); color: black;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 5px 20px rgba(255,255,255,0.2);
+}
+.fab:active { transform: translateX(-50%) scale(0.92); }
+
+.modal-wrap {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200;
+    display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);
+}
+.modal-wrap.open { display: flex; animation: fadeIn 0.2s; }
+.modal-box {
+    width: 90%; max-width: 360px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+.inp-group { margin-bottom: 16px; }
+.inp-label { display: block; font-size: 12px; margin-bottom: 8px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+.inp-field {
+    width: 100%; background: var(--bg-body); border: 1px solid var(--border);
+    padding: 14px; border-radius: 12px; color: white; font-size: 16px;
+}
+.color-row { display: flex; gap: 10px; margin-top: 10px; }
+.c-opt { width: 32px; height: 32px; border-radius: 50%; border: 2px solid transparent; }
+.c-opt.sel { border-color: white; transform: scale(1.1); }
+
+@media (min-width: 769px) {
+    .sidebar-desktop { display: flex; }
+    .mobile-bar { display: none; }
+    .cal-grid-box { min-height: 600px; }
+}
+
+@media (max-width: 768px) {
+    .calendar-body { grid-template-columns: 1fr; padding: 10px; gap: 15px; padding-bottom: 90px; }
+    .side-panel { display: none; }
+    .mobile-bar { display: flex; }
+    .header-top { padding: 10px 15px; }
+    .day-cell { min-height: 55px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+    <nav class="sidebar-desktop">
+        <div class="brand">
+            <div style="width:24px;height:24px;background:white;border-radius:6px;"></div>
+            CHRONOS
+        </div>
+        <button class="nav-btn active" onclick="app.switchView('calendar', this)">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            Calendário
+        </button>
+        <button class="nav-btn" onclick="app.switchView('game', this)">
+            <svg viewBox="0 0 24 24"><path d="M3 3h18v18H3zM9 9l6 6M15 9l-6 6"/></svg>
+            Desafio AI
+        </button>
+    </nav>
+
+    <main class="main-content">
+        <section id="view-calendar" class="view-section active">
+            <header class="header-top">
+                <div class="month-nav">
+                    <button class="btn-icon" onclick="app.navMonth(-1)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                    <div class="month-label" id="month-txt">Janeiro 2024</div>
+                    <button class="btn-icon" onclick="app.navMonth(1)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                </div>
+                <button class="btn-main" onclick="app.openModal()">
+                    <span style="font-size: 20px;">+</span> <span style="display:none;" class="desk-txt">Evento</span>
+                </button>
+            </header>
+
+            <div class="calendar-body">
+                <div class="cal-grid-box">
+                    <div class="week-row">
+                        <div class="week-day">Dom</div>
+                        <div class="week-day">Seg</div>
+                        <div class="week-day">Ter</div>
+                        <div class="week-day">Qua</div>
+                        <div class="week-day">Qui</div>
+                        <div class="week-day">Sex</div>
+                        <div class="week-day">Sab</div>
+                    </div>
+                    <div class="days-container" id="cal-grid"></div>
+                </div>
+                <aside class="side-panel">
+                    <h3 style="font-size:16px;">Agenda</h3>
+                    <div id="date-detail" style="font-size:13px;color:var(--text-muted);">Selecione um dia</div>
+                    <div id="evt-list" style="display:flex;flex-direction:column;gap:10px;overflow-y:auto;flex:1;"></div>
+                </aside>
+            </div>
+        </section>
+
+        <section id="view-game" class="view-section">
+            <div class="game-container">
+                <div style="text-align:center;margin-bottom:20px;">
+                    <h2 style="font-size:24px;font-weight:800;margin-bottom:8px;">AI Imbatível</h2>
+                    <p style="color:var(--text-muted);font-size:14px;">Você não vai ganhar.</p>
+                </div>
+                
+                <div class="game-status" id="g-status">Sua vez (X)</div>
+
+                <div class="tic-board" id="tic-board">
+                    <div class="tic-cell" onclick="game.move(0)"></div>
+                    <div class="tic-cell" onclick="game.move(1)"></div>
+                    <div class="tic-cell" onclick="game.move(2)"></div>
+                    <div class="tic-cell" onclick="game.move(3)"></div>
+                    <div class="tic-cell" onclick="game.move(4)"></div>
+                    <div class="tic-cell" onclick="game.move(5)"></div>
+                    <div class="tic-cell" onclick="game.move(6)"></div>
+                    <div class="tic-cell" onclick="game.move(7)"></div>
+                    <div class="tic-cell" onclick="game.move(8)"></div>
+                </div>
+
+                <div class="game-controls">
+                    <button class="btn-game" onclick="game.reset()">Reiniciar Jogo</button>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<nav class="mobile-bar">
+    <div class="mobile-item active" onclick="app.switchView('calendar', this)">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        <span>Hoje</span>
+    </div>
+    <div class="fab" onclick="app.openModal()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    </div>
+    <div class="mobile-item" onclick="app.switchView('game', this)">
+        <svg viewBox="0 0 24 24"><path d="M3 3h18v18H3zM9 9l6 6M15 9l-6 6"/></svg>
+        <span>Jogar</span>
+    </div>
+</nav>
+
+<div class="modal-wrap" id="modal">
+    <div class="modal-box">
+        <h3 style="font-size:18px;margin-bottom:20px;">Novo Evento</h3>
+        <div class="inp-group">
+            <label class="inp-label">Título</label>
+            <input type="text" class="inp-field" id="evt-title" placeholder="Ex: Reunião importante">
+        </div>
+        <div class="inp-group">
+            <label class="inp-label">Horário</label>
+            <input type="time" class="inp-field" id="evt-time">
+        </div>
+        <div class="inp-group">
+            <label class="inp-label">Cor</label>
+            <div class="color-row">
+                <div class="c-opt sel" style="background:#3b82f6" onclick="app.setCol(this, '#3b82f6')"></div>
+                <div class="c-opt" style="background:#ef4444" onclick="app.setCol(this, '#ef4444')"></div>
+                <div class="c-opt" style="background:#10b981" onclick="app.setCol(this, '#10b981')"></div>
+                <div class="c-opt" style="background:#f59e0b" onclick="app.setCol(this, '#f59e0b')"></div>
+            </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:24px;">
+            <button class="btn-main" style="background:transparent;border:1px solid var(--border);color:white;flex:1;justify-content:center;" onclick="app.closeModal()">Cancelar</button>
+            <button class="btn-main" style="flex:1;justify-content:center;" onclick="app.saveEvt()">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+class TicTacToeAI {
+    constructor() {
+        this.board = ['', '', '', '', '', '', '', '', '']
+        this.human = 'X'
+        this.ai = 'O'
+        this.currentPlayer = this.human
+        this.gameActive = true
+        this.statusEl = document.getElementById('g-status')
+        this.cells = document.querySelectorAll('.tic-cell')
+    }
+
+    move(idx) {
+        if (this.board[idx] !== '' || !this.gameActive || this.currentPlayer !== this.human) return
+        
+        this.makeMove(idx, this.human)
+        if (this.checkWin(this.human)) {
+            this.endGame('Você Venceu!')
+            return
+        }
+        if (this.checkDraw()) {
+            this.endGame('Empate!')
+            return
+        }
+
+        this.currentPlayer = this.ai
+        this.statusEl.innerText = 'AI pensando...'
+        
+        setTimeout(() => {
+            const bestMove = this.minimax(this.board, this.ai).index
+            this.makeMove(bestMove, this.ai)
+            if (this.checkWin(this.ai)) {
+                this.endGame('AI Venceu!')
+            } else if (this.checkDraw()) {
+                this.endGame('Empate!')
+            } else {
+                this.currentPlayer = this.human
+                this.statusEl.innerText = 'Sua vez (X)'
+            }
+        }, 400)
+    }
+
+    makeMove(idx, player) {
+        this.board[idx] = player
+        this.cells[idx].innerText = player
+        this.cells[idx].classList.add(player.toLowerCase())
+    }
+
+    minimax(newBoard, player) {
+        const availSpots = newBoard.map((v, i) => v === '' ? i : null).filter(v => v !== null)
+
+        if (this.checkWinState(newBoard, this.human)) return { score: -10 }
+        if (this.checkWinState(newBoard, this.ai)) return { score: 10 }
+        if (availSpots.length === 0) return { score: 0 }
+
+        const moves = []
+        for (let i = 0; i < availSpots.length; i++) {
+            const move = {}
+            move.index = availSpots[i]
+            newBoard[availSpots[i]] = player
+
+            if (player === this.ai) {
+                const result = this.minimax(newBoard, this.human)
+                move.score = result.score
+            } else {
+                const result = this.minimax(newBoard, this.ai)
+                move.score = result.score
+            }
+
+            newBoard[availSpots[i]] = ''
+            moves.push(move)
+        }
+
+        let bestMove
+        if (player === this.ai) {
+            let bestScore = -10000
+            for (let i = 0; i < moves.length; i++) {
+                if (moves[i].score > bestScore) {
+                    bestScore = moves[i].score
+                    bestMove = i
+                }
+            }
+        } else {
+            let bestScore = 10000
+            for (let i = 0; i < moves.length; i++) {
+                if (moves[i].score < bestScore) {
+                    bestScore = moves[i].score
+                    bestMove = i
+                }
+            }
+        }
+        return moves[bestMove]
+    }
+
+    checkWin(player) {
+        return this.checkWinState(this.board, player)
+    }
+
+    checkWinState(board, player) {
+        const wins = [
+            [0,1,2], [3,4,5], [6,7,8],
+            [0,3,6], [1,4,7], [2,5,8],
+            [0,4,8], [2,4,6]
+        ]
+        for (let i = 0; i < wins.length; i++) {
+            const [a, b, c] = wins[i]
+            if (board[a] === player && board[b] === player && board[c] === player) return true
+        }
+        return false
+    }
+
+    checkDraw() {
+        return !this.board.includes('')
+    }
+
+    endGame(msg) {
+        this.gameActive = false
+        this.statusEl.innerText = msg
+    }
+
+    reset() {
+        this.board = ['', '', '', '', '', '', '', '', '']
+        this.gameActive = true
+        this.currentPlayer = this.human
+        this.statusEl.innerText = 'Sua vez (X)'
+        this.cells.forEach(c => {
+            c.innerText = ''
+            c.classList.remove('x', 'o')
+        })
+    }
+}
+
+class SuperApp {
+    constructor() {
+        this.d = new Date()
+        this.selD = new Date()
+        this.evts = JSON.parse(localStorage.getItem('evts_db')) || {}
+        this.col = '#3b82f6'
+        this.init()
+    }
+
+    init() {
+        this.renderCal()
+        this.renderList()
+        this.fixDesks()
+    }
+
+    fixDesks() {
+        if(window.innerWidth > 768) {
+            document.querySelector('.desk-txt').style.display = 'inline'
+        }
+    }
+
+    navMonth(v) {
+        this.d.setMonth(this.d.getMonth() + v)
+        this.renderCal()
+    }
+
+    renderCal() {
+        const grid = document.getElementById('cal-grid')
+        grid.innerHTML = ''
+        
+        const mNames = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']
+        document.getElementById('month-txt').innerText = `${mNames[this.d.getMonth()]} ${this.d.getFullYear()}`
+
+        const y = this.d.getFullYear()
+        const m = this.d.getMonth()
+        const fDay = new Date(y, m, 1).getDay()
+        const lDay = new Date(y, m + 1, 0).getDate()
+        const prevL = new Date(y, m, 0).getDate()
+
+        for(let i = fDay; i > 0; i--) {
+            grid.innerHTML += `<div class="day-cell muted"><div class="day-num">${prevL - i + 1}</div></div>`
+        }
+
+        for(let i = 1; i <= lDay; i++) {
+            const cd = new Date(y, m, i)
+            const k = this.toKey(cd)
+            const isT = k === this.toKey(new Date())
+            const isS = k === this.toKey(this.selD)
+            const hasEv = this.evts[k]
+
+            const el = document.createElement('div')
+            el.className = `day-cell ${isT ? 'today' : ''} ${isS ? 'selected' : ''}`
+            
+            let dots = ''
+            if(hasEv) {
+                dots = `<div class="event-marker">`
+                hasEv.forEach(e => dots += `<div class="dot" style="background:${e.c}"></div>`)
+                dots += `</div>`
+            }
+
+            el.innerHTML = `<div class="day-num">${i}</div>${dots}`
+            el.onclick = () => {
+                this.selD = cd
+                this.renderCal()
+                this.renderList()
+            }
+            grid.appendChild(el)
+        }
+    }
+
+    renderList() {
+        const l = document.getElementById('evt-list')
+        const k = this.toKey(this.selD)
+        const items = this.evts[k] || []
+        
+        document.getElementById('date-detail').innerText = this.selD.toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long'})
+        l.innerHTML = ''
+
+        if(items.length === 0) {
+            l.innerHTML = `<div style="text-align:center;margin-top:20px;color:var(--text-muted);font-size:13px;">Sem eventos</div>`
+            return
+        }
+
+        items.sort((a,b) => a.t.localeCompare(b.t))
+        items.forEach((e, i) => {
+            const d = document.createElement('div')
+            d.className = 'event-card'
+            d.style.borderLeftColor = e.c
+            d.innerHTML = `<h4>${e.tit}</h4><span>${e.t}</span><div class="del-btn" onclick="app.del('${k}', ${i})">✕</div>`
+            l.appendChild(d)
+        })
+    }
+
+    toKey(d) {
+        return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
+    }
+
+    switchView(v, btn) {
+        document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active'))
+        document.getElementById(`view-${v}`).classList.add('active')
+        
+        document.querySelectorAll('.nav-btn, .mobile-item').forEach(e => e.classList.remove('active'))
+        if(btn) btn.classList.add('active')
+        
+        // Sincroniza mobile e desktop
+        const idx = v === 'calendar' ? 0 : 2 // 0=cal, 2=game (1 is modal fab)
+        document.querySelectorAll('.mobile-item')[idx === 0 ? 0 : 1].classList.add('active')
+    }
+
+    openModal() {
+        document.getElementById('modal').classList.add('open')
+        document.getElementById('evt-title').focus()
+    }
+
+    closeModal() {
+        document.getElementById('modal').classList.remove('open')
+        document.getElementById('evt-title').value = ''
+    }
+
+    setCol(el, c) {
+        document.querySelectorAll('.c-opt').forEach(x => x.classList.remove('sel'))
+        el.classList.add('sel')
+        this.col = c
+    }
+
+    saveEvt() {
+        const t = document.getElementById('evt-title').value
+        const tm = document.getElementById('evt-time').value || 'Dia todo'
+        if(!t) return
+        
+        const k = this.toKey(this.selD)
+        if(!this.evts[k]) this.evts[k] = []
+        this.evts[k].push({ tit: t, t: tm, c: this.col })
+        
+        localStorage.setItem('evts_db', JSON.stringify(this.evts))
+        this.closeModal()
+        this.renderCal()
+        this.renderList()
+    }
+
+    del(k, i) {
+        if(confirm('Apagar?')) {
+            this.evts[k].splice(i, 1)
+            localStorage.setItem('evts_db', JSON.stringify(this.evts))
+            this.renderCal()
+            this.renderList()
+        }
+    }
+}
+
+const app = new SuperApp()
+const game = new TicTacToeAI()
+</script>
+</body>
+</html>
