@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>MONAFI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #000000;
+            --card: #1C1C1E;
+            --card-active: #2C2C2E;
+            --text: #FFFFFF;
+            --text-sub: #8E8E93;
+            --primary: #0A84FF;
+            --green: #30D158;
+            --red: #FF453A;
+            --border: #38383A;
+            --nav-bg: rgba(28, 28, 30, 0.95);
+            --safe-area-bottom: env(safe-area-inset-bottom);
+        }
+
+        body.light-mode {
+            --bg: #F2F2F7;
+            --card: #FFFFFF;
+            --card-active: #E5E5EA;
+            --text: #000000;
+            --text-sub: #8E8E93;
+            --border: #C6C6C8;
+            --nav-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Manrope', sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding-bottom: calc(90px + var(--safe-area-bottom));
+            overscroll-behavior-y: none;
+            transition: background-color 0.3s;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            z-index: 100;
+            padding: 15px 20px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .app-title { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+        .app-title span { color: var(--primary); }
+
+        .btn-icon {
+            background: var(--card);
+            border: none;
+            color: var(--text);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .stories-container {
+            padding: 10px 0 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .stories-container::-webkit-scrollbar { display: none; }
+
+        .story-card {
+            display: inline-block;
+            background: var(--card);
+            padding: 12px 16px;
+            border-radius: 16px;
+            margin-left: 15px;
+            min-width: 140px;
+            vertical-align: top;
+        }
+        .story-card:last-child { margin-right: 15px; }
+
+        .story-label { font-size: 12px; color: var(--text-sub); text-transform: uppercase; font-weight: 700; margin-bottom: 5px; }
+        .story-value { font-size: 16px; font-weight: 700; font-family: 'Roboto Mono', monospace; }
+        .story-change { font-size: 13px; font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+
+        .search-container { padding: 0 20px 20px; }
+        .search-input {
+            width: 100%;
+            background: var(--card);
+            border: none;
+            padding: 14px 20px;
+            border-radius: 14px;
+            color: var(--text);
+            font-size: 16px;
+            outline: none;
+        }
+        .search-input::placeholder { color: var(--text-sub); }
+
+        .list-container { padding: 0 20px; display: flex; flex-direction: column; gap: 12px; }
+
+        .currency-item {
+            background: var(--card);
+            padding: 16px;
+            border-radius: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.1s;
+        }
+        .currency-item:active { transform: scale(0.98); background: var(--card-active); }
+
+        .curr-left { display: flex; align-items: center; gap: 12px; }
+        .curr-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(128,128,128,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text);
+        }
+        
+        .curr-info h3 { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+        .curr-info p { font-size: 13px; color: var(--text-sub); }
+
+        .curr-right { text-align: right; }
+        .curr-price { font-size: 17px; font-weight: 700; font-family: 'Roboto Mono', monospace; margin-bottom: 2px; }
+        .curr-pct { font-size: 13px; font-weight: 600; padding: 4px 8px; border-radius: 6px; display: inline-block; }
+
+        .text-up { color: var(--green); }
+        .text-down { color: var(--red); }
+        .bg-up { background: rgba(48, 209, 88, 0.15); color: var(--green); }
+        .bg-down { background: rgba(255, 69, 58, 0.15); color: var(--red); }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--nav-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 10px 20px calc(10px + var(--safe-area-bottom));
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-sub);
+            font-size: 10px;
+            font-weight: 600;
+            background: none;
+            border: none;
+            width: 60px;
+        }
+        .nav-item i { font-size: 22px; margin-bottom: 2px; }
+        .nav-item.active { color: var(--primary); }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            display: flex;
+            align-items: flex-end;
+            transition: opacity 0.3s;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+        .modal-sheet {
+            background: var(--card);
+            width: 100%;
+            border-radius: 24px 24px 0 0;
+            padding: 25px;
+            padding-bottom: calc(30px + var(--safe-area-bottom));
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.1, 0.7, 0.1, 1);
+        }
+        .modal-overlay.open .modal-sheet { transform: translateY(0); }
+
+        .sheet-header { display: flex; justify-content: space-between; margin-bottom: 25px; align-items: center; }
+        .sheet-title { font-size: 20px; font-weight: 800; }
+        
+        .form-row { margin-bottom: 15px; }
+        .form-row label { display: block; font-size: 13px; color: var(--text-sub); margin-bottom: 8px; font-weight: 600; }
+        .form-input { width: 100%; background: var(--bg); border: none; padding: 16px; border-radius: 12px; color: var(--text); font-size: 18px; font-family: 'Roboto Mono', monospace; }
+        .result-box { text-align: center; padding: 20px; background: rgba(10, 132, 255, 0.1); border-radius: 16px; margin-top: 20px; }
+        .result-val { font-size: 32px; font-weight: 800; color: var(--primary); font-family: 'Roboto Mono', monospace; }
+
+        .skeleton { background: linear-gradient(90deg, var(--card) 25%, var(--border) 50%, var(--card) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.2s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-sub); }
+        .empty-state i { font-size: 40px; margin-bottom: 10px; opacity: 0.5; }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="app-title">finance mnc<span>.</span></div>
+        <button class="btn-icon" id="theme-btn"><i class="fa-solid fa-moon"></i></button>
+    </div>
+
+    <div id="page-home" class="page active">
+        <div class="stories-container" id="stories"></div>
+
+        <div class="search-container">
+            <input type="text" class="search-input" id="search" placeholder="Buscar (ex: Dólar, BTC)...">
+        </div>
+
+        <div class="list-container" id="main-list"></div>
+    </div>
+
+    <div id="page-favs" class="page">
+        <div class="list-container" style="padding-top: 20px;">
+            <div style="margin-bottom: 15px; padding: 0 5px; font-weight: 700; font-size: 20px;">Meus Favoritos</div>
+            <div id="fav-list"></div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-target="page-home" onclick="navTo('page-home')">
+            <i class="fa-solid fa-chart-line"></i>
+            <span>Mercado</span>
+        </button>
+        <button class="nav-item" data-target="page-favs" onclick="navTo('page-favs')">
+            <i class="fa-solid fa-star"></i>
+            <span>Favoritos</span>
+        </button>
+        <button class="nav-item" onclick="openConvert()">
+            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+            <span>Converter</span>
+        </button>
+        <button class="nav-item" onclick="refreshData()">
+            <i class="fa-solid fa-rotate"></i>
+            <span>Atualizar</span>
+        </button>
+    </nav>
+
+    <div class="modal-overlay" id="convert-modal">
+        <div class="modal-sheet">
+            <div class="sheet-header">
+                <div class="sheet-title">Conversor Rápido</div>
+                <button class="btn-icon" onclick="closeConvert()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="form-row">
+                <label>Valor</label>
+                <input type="number" id="conv-qtd" class="form-input" value="1" inputmode="decimal">
+            </div>
+
+            <div class="form-row">
+                <label>Moeda de Origem</label>
+                <select id="conv-select" class="form-input" style="font-family: 'Manrope'"></select>
+            </div>
+
+            <div class="result-box">
+                <div style="font-size: 12px; text-transform: uppercase; color: var(--primary); margin-bottom: 5px; font-weight: 700;">Em Reais (BRL)</div>
+                <div class="result-val" id="conv-res">R$ 0,00</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SAFE_PAIRS = [
+            'USD-BRL','EUR-BRL','BTC-BRL','ETH-BRL','GBP-BRL','ARS-BRL','CAD-BRL',
+            'AUD-BRL','JPY-BRL','CNY-BRL','CHF-BRL','LTC-BRL','XRP-BRL','DOGE-BRL',
+            'BNB-BRL','SOL-BRL','USDT-BRL','MXN-BRL','CLP-BRL','COP-BRL','PEN-BRL',
+            'UYU-BRL','RUB-BRL','INR-BRL','ZAR-BRL','TRY-BRL','SEK-BRL','NZD-BRL',
+            'SGD-BRL','HKD-BRL','DKK-BRL','NOK-BRL','ILS-BRL','PLN-BRL','AED-BRL'
+        ];
+
+        const STATE = {
+            data: [],
+            favs: JSON.parse(localStorage.getItem('fmobile_favs')) || [],
+            theme: localStorage.getItem('fmobile_theme') || 'dark'
+        };
+
+        const ELS = {
+            list: document.getElementById('main-list'),
+            favList: document.getElementById('fav-list'),
+            stories: document.getElementById('stories'),
+            search: document.getElementById('search'),
+            modal: document.getElementById('convert-modal'),
+            convSelect: document.getElementById('conv-select'),
+            convQtd: document.getElementById('conv-qtd'),
+            convRes: document.getElementById('conv-res'),
+            themeBtn: document.getElementById('theme-btn')
+        };
+
+        const formatBRL = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+
+        async function init() {
+            setTheme(STATE.theme);
+            renderSkeleton();
+            await fetchData();
+            setInterval(fetchData, 60000); 
+
+            ELS.search.addEventListener('input', renderLists);
+            
+            ELS.convQtd.addEventListener('input', calcConvert);
+            ELS.convSelect.addEventListener('change', calcConvert);
+
+            ELS.themeBtn.addEventListener('click', () => {
+                const newTheme = STATE.theme === 'dark' ? 'light' : 'dark';
+                setTheme(newTheme);
+            });
+        }
+
+        function setTheme(t) {
+            STATE.theme = t;
+            localStorage.setItem('fmobile_theme', t);
+            if(t === 'light') {
+                document.body.classList.add('light-mode');
+                ELS.themeBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
+            } else {
+                document.body.classList.remove('light-mode');
+                ELS.themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+            }
+        }
+
+        async function fetchData() {
+            try {
+                const res = await fetch(`https://economia.awesomeapi.com.br/last/${SAFE_PAIRS.join(',')}`);
+                if (!res.ok) throw new Error();
+                const json = await res.json();
+                
+                STATE.data = Object.values(json).map(i => ({
+                    code: i.code,
+                    name: i.name.split('/')[0],
+                    bid: parseFloat(i.bid),
+                    pct: parseFloat(i.pctChange),
+                    high: parseFloat(i.high),
+                    low: parseFloat(i.low)
+                }));
+
+                populateConverter();
+                renderLists();
+                renderStories();
+
+            } catch (e) {
+                alert('Erro de conexão. Verifique sua internet.');
+            }
+        }
+
+        function renderLists() {
+            const term = ELS.search.value.toLowerCase();
+            const filtered = STATE.data.filter(i => i.code.toLowerCase().includes(term) || i.name.toLowerCase().includes(term));
+            
+            ELS.list.innerHTML = buildHTML(filtered);
+
+            const favItems = STATE.data.filter(i => STATE.favs.includes(i.code));
+            ELS.favList.innerHTML = favItems.length ? buildHTML(favItems) : '<div class="empty-state"><i class="fa-regular fa-star"></i><p>Sem favoritos ainda</p></div>';
+        }
+
+        function buildHTML(items) {
+            return items.map(item => {
+                const isUp = item.pct >= 0;
+                const isFav = STATE.favs.includes(item.code);
+                
+                return `
+                <div class="currency-item" onclick="toggleFav('${item.code}')">
+                    <div class="curr-left">
+                        <div class="curr-icon">
+                            ${item.code === 'BTC' ? '<i class="fa-brands fa-bitcoin"></i>' : 
+                              item.code === 'ETH' ? '<i class="fa-brands fa-ethereum"></i>' : 
+                              item.code === 'USD' ? '<i class="fa-solid fa-dollar-sign"></i>' : 
+                              item.code.substring(0,1)}
+                        </div>
+                        <div class="curr-info">
+                            <h3>${item.code} ${isFav ? '<i class="fa-solid fa-star" style="font-size:10px; color:#FFD60A; vertical-align:middle"></i>' : ''}</h3>
+                            <p>${item.name}</p>
+                        </div>
+                    </div>
+                    <div class="curr-right">
+                        <div class="curr-price">${formatBRL(item.bid)}</div>
+                        <div class="curr-pct ${isUp ? 'bg-up' : 'bg-down'}">
+                            ${isUp ? '▲' : '▼'} ${Math.abs(item.pct).toFixed(2)}%
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderStories() {
+            const top = [...STATE.data].sort((a,b) => Math.abs(b.pct) - Math.abs(a.pct)).slice(0, 5);
+            
+            ELS.stories.innerHTML = top.map(item => {
+                const isUp = item.pct >= 0;
+                return `
+                <div class="story-card">
+                    <div class="story-label">${isUp ? 'Alta do Dia' : 'Queda do Dia'}</div>
+                    <div class="story-value">${item.code}</div>
+                    <div class="story-change ${isUp ? 'text-up' : 'text-down'}">
+                        ${isUp ? '<i class="fa-solid fa-caret-up"></i>' : '<i class="fa-solid fa-caret-down"></i>'}
+                        ${Math.abs(item.pct).toFixed(2)}%
+                    </div>
+                    <div style="font-size:12px; margin-top:5px; color:var(--text-sub)">${formatBRL(item.bid)}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderSkeleton() {
+            const skel = `
+            <div class="currency-item">
+                <div class="curr-left">
+                    <div class="skeleton" style="width:44px; height:44px; border-radius:50%"></div>
+                    <div style="display:flex; flex-direction:column; gap:6px">
+                        <div class="skeleton" style="width:50px; height:16px"></div>
+                        <div class="skeleton" style="width:100px; height:12px"></div>
+                    </div>
+                </div>
+                <div class="curr-right">
+                    <div class="skeleton" style="width:80px; height:20px; margin-bottom:6px"></div>
+                    <div class="skeleton" style="width:60px; height:20px; border-radius:6px; margin-left:auto"></div>
+                </div>
+            </div>`;
+            ELS.list.innerHTML = skel.repeat(6);
+            ELS.stories.innerHTML = `<div class="story-card" style="width:140px; height:80px; display:inline-block"><div class="skeleton" style="width:100%; height:100%"></div></div>`.repeat(3);
+        }
+
+        function toggleFav(code) {
+            if(STATE.favs.includes(code)) STATE.favs = STATE.favs.filter(c => c !== code);
+            else STATE.favs.push(code);
+            
+            localStorage.setItem('fmobile_favs', JSON.stringify(STATE.favs));
+            renderLists();
+        }
+
+        function navTo(targetId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(targetId).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            document.querySelector(`[data-target="${targetId}"]`).classList.add('active');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openConvert() { ELS.modal.classList.add('open'); }
+        function closeConvert() { ELS.modal.classList.remove('open'); }
+        
+        function populateConverter() {
+            if(ELS.convSelect.options.length > 1) return;
+            STATE.data.sort((a,b) => a.code.localeCompare(b.code)).forEach(i => {
+                const opt = document.createElement('option');
+                opt.value = i.bid;
+                opt.text = i.code;
+                ELS.convSelect.appendChild(opt);
+            });
+            const usd = [...ELS.convSelect.options].find(o => o.text === 'USD');
+            if(usd) usd.selected = true;
+            calcConvert();
+        }
+
+        function calcConvert() {
+            const v = parseFloat(ELS.convQtd.value);
+            const r = parseFloat(ELS.convSelect.value);
+            if(!isNaN(v) && !isNaN(r)) ELS.convRes.textContent = formatBRL(v * r);
+        }
+
+        function refreshData() {
+            ELS.list.style.opacity = '0.5';
+            fetchData().then(() => ELS.list.style.opacity = '1');
+        }
+
+        ELS.modal.addEventListener('click', (e) => {
+            if(e.target === ELS.modal) closeConvert();
+        });
+
+        init();
+    </script>
+</body>
+</html>
