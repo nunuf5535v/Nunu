@@ -2,495 +2,629 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MatchDay: Velo Clube vs Corinthians</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MatchDay Pro: Velo x Corinthians</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --accent-corinthians: #ffffff;
-            --accent-velo: #e11d48; /* Vermelho Velo */
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --highlight: #38bdf8;
-            --success: #22c55e;
+            /* Palette Dark Premium */
+            --app-bg: #0b0e14;
+            --surface-1: #151922;
+            --surface-2: #1e2330;
+            --surface-glass: rgba(30, 35, 48, 0.6);
+            
+            /* Cores dos Times */
+            --corinthians: #ffffff;
+            --velo: #ff3b3b;
+            
+            /* Acentos */
+            --accent-green: #00e676; /* Odds/Money */
+            --accent-purple: #6c5ce7; /* AI/Simulador */
+            --accent-blue: #0984e3;
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --border-dim: rgba(255, 255, 255, 0.08);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+
         body {
-            background-color: var(--bg-dark);
-            background-image: radial-gradient(circle at top right, #1e1b4b, var(--bg-dark));
-            color: var(--text-primary);
-            padding-bottom: 80px;
+            background-color: var(--app-bg);
+            color: var(--text-main);
+            /* Fundo "Surreal" com gradientes sutis */
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(108, 92, 231, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 100% 0%, rgba(255, 59, 59, 0.1) 0%, transparent 50%);
+            padding-bottom: 40px;
+            min-height: 100vh;
         }
 
-        /* HEADER & PLACAR */
-        header {
-            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
-            padding: 20px;
-            text-align: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-        }
-
-        .league-badge {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-            display: block;
-        }
-
-        .scoreboard {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        .team {
+        /* --- HEADER HERO --- */
+        .match-hero {
+            position: relative;
+            padding: 40px 20px 20px 20px;
+            background: linear-gradient(180deg, rgba(21, 25, 34, 0) 0%, var(--app-bg) 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 35%;
+            border-bottom: 1px solid var(--border-dim);
         }
 
-        .team img {
-            width: 70px;
-            height: 70px;
-            object-fit: contain;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
-            margin-bottom: 8px;
+        .league-tag {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            background: rgba(255,255,255,0.05);
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-dim);
         }
 
-        .team-name { font-weight: bold; font-size: 0.9rem; }
+        .scoreboard-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 400px;
+        }
 
-        .vs-container {
+        .team-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 30%;
+            position: relative;
+        }
+
+        .team-logo-wrap {
+            width: 64px;
+            height: 64px;
+            background: var(--surface-2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            border: 2px solid var(--border-dim);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .team-logo-wrap:active { transform: scale(0.95); }
+
+        .team-logo { width: 40px; height: 40px; object-fit: contain; }
+
+        .team-name { font-weight: 700; font-size: 0.9rem; text-align: center; line-height: 1.2; }
+        .team-home { color: var(--velo); text-shadow: 0 0 15px rgba(255, 59, 59, 0.3); }
+        .team-away { color: var(--corinthians); text-shadow: 0 0 15px rgba(255, 255, 255, 0.3); }
+
+        .score-col {
+            text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
         .match-time {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--highlight);
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            background: linear-gradient(180deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .match-status {
+        .match-date {
             font-size: 0.75rem;
-            background: rgba(255,255,255,0.1);
-            padding: 4px 10px;
-            border-radius: 20px;
-            margin-top: 5px;
-        }
-
-        /* TABS DE NAVEGAÇÃO */
-        .nav-tabs {
+            color: var(--accent-green);
+            font-weight: 600;
+            margin-top: 4px;
             display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .live-dot { width: 6px; height: 6px; background: var(--accent-green); border-radius: 50%; animation: pulse 2s infinite; }
+
+        /* --- TABS --- */
+        .tabs-wrapper {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(11, 14, 20, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-dim);
+            padding: 0 15px;
+        }
+
+        .tabs-scroller {
+            display: flex;
+            gap: 20px;
             overflow-x: auto;
-            padding: 15px;
-            gap: 15px;
             scrollbar-width: none;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 15px 5px;
         }
-        
-        .nav-item {
-            padding: 8px 16px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 20px;
-            white-space: nowrap;
+        .tabs-scroller::-webkit-scrollbar { display: none; }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
             font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+            position: relative;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: color 0.3s;
         }
 
-        .nav-item.active {
-            background: var(--highlight);
-            color: #000;
-            font-weight: bold;
+        .tab-btn.active { color: var(--text-main); }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background: var(--accent-purple);
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 -2px 10px var(--accent-purple);
         }
 
-        /* CONTEÚDO GERAL */
-        .container {
+        /* --- CONTENT AREA --- */
+        .content-area {
             padding: 20px;
             max-width: 600px;
             margin: 0 auto;
-            animation: fadeIn 0.5s ease;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .card h3 {
-            margin-bottom: 15px;
-            border-left: 4px solid var(--highlight);
-            padding-left: 10px;
-            font-size: 1.1rem;
-        }
-
-        /* INFO SECTION */
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        .info-item {
-            background: rgba(0,0,0,0.2);
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .info-label { font-size: 0.7rem; color: var(--text-secondary); display: block;}
-        .info-val { font-size: 0.9rem; font-weight: bold; }
-
-        /* LINEUPS */
-        .lineup-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        .player-list ul { list-style: none; }
-        .player-list li {
-            font-size: 0.85rem;
-            padding: 6px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            display: flex;
-            align-items: center;
-        }
-        .pos-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-        .dot-gk { background: #eab308; }
-        .dot-def { background: #3b82f6; }
-        .dot-mid { background: #22c55e; }
-        .dot-att { background: #ef4444; }
-
-        /* ODDS */
-        .odds-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-        }
-        .odd-box {
-            flex: 1;
-            background: rgba(255,255,255,0.05);
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.2s;
-            border: 1px solid transparent;
-        }
-        .odd-box:hover { border-color: var(--highlight); transform: translateY(-2px); }
-        .odd-val { display: block; font-size: 1.2rem; font-weight: bold; color: var(--success); margin-top: 5px; }
-        
-        /* SIMULAÇÃO */
-        .sim-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(45deg, var(--highlight), #3b82f6);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
-        }
-        .sim-result {
-            margin-top: 20px;
+            opacity: 0;
+            animation: slideUp 0.4s forwards;
             display: none;
         }
-        .progress-bar {
-            height: 10px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 5px;
-            margin: 10px 0 20px 0;
-            overflow: hidden;
-            position: relative;
-        }
-        .progress-fill {
-            height: 100%;
-            border-radius: 5px;
-            transition: width 1s ease-in-out;
-        }
-        .fill-home { background: var(--accent-velo); }
-        .fill-draw { background: var(--text-secondary); }
-        .fill-away { background: var(--accent-corinthians); }
+        .content-area.active { display: block; opacity: 1; }
 
-        /* FOOTER */
-        footer {
-            text-align: center;
-            font-size: 0.7rem;
-            color: var(--text-secondary);
+        /* CARDS */
+        .app-card {
+            background: var(--surface-1);
+            border-radius: 16px;
             padding: 20px;
-            opacity: 0.5;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-dim);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
         }
+        
+        .card-title { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .icon-box { 
+            width: 24px; height: 24px; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 6px; 
+            display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
+        }
+
+        /* INFO GRID */
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .detail-item {
+            background: var(--surface-2);
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .detail-label { font-size: 0.7rem; color: var(--text-muted); display: block; margin-bottom: 4px; }
+        .detail-val { font-size: 0.85rem; font-weight: 600; color: #fff; }
+
+        /* LINEUPS */
+        .lineup-row {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-dim);
+        }
+        .lineup-row:last-child { border-bottom: none; }
+        .player-num { 
+            width: 24px; font-size: 0.75rem; color: var(--text-muted); font-family: monospace; 
+        }
+        .player-name { font-size: 0.9rem; flex-grow: 1; }
+        .player-pos {
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .pos-gk { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+        .pos-def { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .pos-mid { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .pos-att { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+        /* ODDS */
+        .market-odds {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+        .odd-btn {
+            background: var(--surface-2);
+            padding: 15px 10px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .odd-btn:active { transform: scale(0.98); background: rgba(0, 230, 118, 0.1); }
+        .odd-btn.hot { border-color: var(--accent-green); background: rgba(0, 230, 118, 0.05); }
+        
+        .odd-label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; }
+        .odd-number { display: block; font-size: 1.1rem; font-weight: 800; color: var(--text-main); }
+        .hot .odd-number { color: var(--accent-green); }
+
+        /* PROBABILITY BAR */
+        .prob-bar-container {
+            height: 8px;
+            background: var(--surface-2);
+            border-radius: 4px;
+            display: flex;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+        .bar-seg { height: 100%; }
+        .seg-1 { background: var(--velo); width: 20%; }
+        .seg-x { background: var(--text-muted); width: 25%; }
+        .seg-2 { background: var(--corinthians); width: 55%; }
+
+        .prob-legend {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* SIMULATOR AI */
+        .ai-card {
+            background: linear-gradient(145deg, #1e1b4b, #2e1065);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Glow effect inside card */
+        .ai-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+            animation: rotate 10s linear infinite;
+        }
+
+        .sim-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #4f46e5, #9333ea);
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+            transition: transform 0.2s;
+        }
+        .sim-btn:active { transform: scale(0.97); }
+
+        .ai-result-box {
+            margin-top: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            display: none;
+            position: relative;
+            z-index: 2;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .score-big { font-size: 3.5rem; font-weight: 900; line-height: 1; letter-spacing: -2px; margin: 10px 0; }
+        .ai-badge { background: #8b5cf6; color: white; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; vertical-align: middle;}
+
+        /* ANIMATIONS */
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
     </style>
 </head>
 <body>
 
-    <header>
-        <span class="league-badge">Paulistão 2026 • 5ª Rodada</span>
-        <div class="scoreboard">
-            <div class="team">
-                <img src="https://nunuf5535v.github.io/Corinthians-MONACO/download.png" alt="Velo Clube" onerror="this.src='https://placehold.co/70x70/red/white?text=VELO'">
-                <span class="team-name">Velo Clube</span>
-            </div>
-            
-            <div class="vs-container">
-                <span class="match-time">20:30</span>
-                <span class="match-status">HOJE</span>
+    <header class="match-hero">
+        <span class="league-tag">Paulistão • 5ª Rodada</span>
+        
+        <div class="scoreboard-container">
+            <div class="team-col">
+                <div class="team-logo-wrap">
+                    <img src="https://nunuf5535v.github.io/Corinthians-MONACO/download.png" class="team-logo" alt="Velo" onerror="this.src='https://placehold.co/40x40/red/white?text=V'">
+                </div>
+                <span class="team-name team-home">Velo<br>Clube</span>
             </div>
 
-            <div class="team">
-                <img src="https://nunuf5535v.github.io/Corinthians-MONACO/download (1).png" alt="Corinthians" onerror="this.src='https://placehold.co/70x70/black/white?text=SCCP'">
-                <span class="team-name">Corinthians</span>
+            <div class="score-col">
+                <div class="match-time">20:30</div>
+                <div class="match-date"><div class="live-dot"></div> HOJE</div>
+            </div>
+
+            <div class="team-col">
+                <div class="team-logo-wrap" style="border-color: rgba(255,255,255,0.2);">
+                    <img src="https://upload.wikimedia.org/wikipedia/pt/b/b4/Corinthians_simbolo.png" class="team-logo" alt="SCCP" onerror="this.src='https://placehold.co/40x40/white/black?text=C'">
+                </div>
+                <span class="team-name team-away">Corinthians</span>
             </div>
         </div>
     </header>
 
-    <div class="nav-tabs">
-        <div class="nav-item active" onclick="showTab('resumo')">Resumo</div>
-        <div class="nav-item" onclick="showTab('escalacoes')">Escalações</div>
-        <div class="nav-item" onclick="showTab('odds')">Odds & Prob.</div>
-        <div class="nav-item" onclick="showTab('simulador')">⚡ Simulador</div>
-    </div>
+    <nav class="tabs-wrapper">
+        <div class="tabs-scroller">
+            <button class="tab-btn active" onclick="switchTab('tab-resumo', this)">Resumo</button>
+            <button class="tab-btn" onclick="switchTab('tab-odds', this)">Odds</button>
+            <button class="tab-btn" onclick="switchTab('tab-lineups', this)">Escalações</button>
+            <button class="tab-btn" style="color: var(--accent-purple);" onclick="switchTab('tab-ai', this)">⚡ IA Insight</button>
+        </div>
+    </nav>
 
-    <div id="resumo" class="container">
-        <div class="card">
-            <h3>📍 Detalhes da Partida</h3>
-            <div class="info-grid">
-                <div class="info-item">
-                    <span class="info-label">Estádio</span>
-                    <span class="info-val">Benitão (Rio Claro)</span>
+    <div id="tab-resumo" class="content-area active">
+        <div class="app-card">
+            <div class="card-header">
+                <span class="card-title"><span class="icon-box">📍</span> Informações</span>
+            </div>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Estádio</span>
+                    <span class="detail-val">Benitão</span>
                 </div>
-                <div class="info-item">
-                    <span class="info-label">Transmissão</span>
-                    <span class="info-val">Record, CazéTV, Max</span>
+                <div class="detail-item">
+                    <span class="detail-label">Cidade</span>
+                    <span class="detail-val">Rio Claro, SP</span>
                 </div>
-                <div class="info-item">
-                    <span class="info-label">Árbitro</span>
-                    <span class="info-val">Flávio R. Souza</span>
+                <div class="detail-item">
+                    <span class="detail-label">Árbitro</span>
+                    <span class="detail-val">Flávio R. Souza</span>
                 </div>
-                <div class="info-item">
-                    <span class="info-label">VAR</span>
-                    <span class="info-val">Marcio H. Gois</span>
+                <div class="detail-item">
+                    <span class="detail-label">Transmissão</span>
+                    <span class="detail-val">CazéTV / Record</span>
                 </div>
             </div>
         </div>
 
-        <div class="card">
-            <h3>📊 Momento & Curiosidades</h3>
-            <ul style="list-style: none; padding: 0;">
-                <li style="margin-bottom: 12px; font-size: 0.9rem;">📉 <b>Ataque Fraco:</b> O Velo Clube marcou apenas 1 gol em 4 jogos.</li>
-                <li style="margin-bottom: 12px; font-size: 0.9rem;">🛡️ <b>Tabu:</b> O Corinthians nunca perdeu para o Velo em jogos oficiais.</li>
-                <li style="margin-bottom: 12px; font-size: 0.9rem;">⚠️ <b>Classificação:</b> Corinthians (8º), Velo Clube (13º).</li>
-            </ul>
-        </div>
-    </div>
-
-    <div id="escalacoes" class="container" style="display: none;">
-        <div class="card">
-            <h3 style="color: var(--accent-corinthians);">🦅 Corinthians (Provável)</h3>
-            <p style="font-size: 0.8rem; margin-bottom: 10px; color: var(--text-secondary);">Téc: Dorival Júnior (Time Misto)</p>
-            <div class="player-list">
-                <ul>
-                    <li><div class="pos-dot dot-gk"></div> Hugo Souza</li>
-                    <li><div class="pos-dot dot-def"></div> Pedro Milans (Matheuzinho)</li>
-                    <li><div class="pos-dot dot-def"></div> Gabriel Paulista</li>
-                    <li><div class="pos-dot dot-def"></div> João P. Tchoca</li>
-                    <li><div class="pos-dot dot-def"></div> Hugo (Bidu)</li>
-                    <li><div class="pos-dot dot-mid"></div> Raniele</li>
-                    <li><div class="pos-dot dot-mid"></div> Charles</li>
-                    <li><div class="pos-dot dot-mid"></div> Matheus Pereira</li>
-                    <li><div class="pos-dot dot-mid"></div> Rodrigo Garro</li>
-                    <li><div class="pos-dot dot-mid"></div> André Carrillo</li>
-                    <li><div class="pos-dot dot-att"></div> Yuri Alberto</li>
-                </ul>
+        <div class="app-card">
+            <div class="card-header">
+                <span class="card-title"><span class="icon-box">🔥</span> Destaques</span>
             </div>
-            <div style="margin-top: 15px; font-size: 0.75rem; color: #ef4444;">
-                🚑 <b>Desfalques:</b> Memphis Depay, Cacá.
-            </div>
-        </div>
-
-        <div class="card">
-            <h3 style="color: var(--accent-velo);">🔴 Velo Clube (Provável)</h3>
-            <p style="font-size: 0.8rem; margin-bottom: 10px; color: var(--text-secondary);">Téc: Pintado</p>
-            <div class="player-list">
-                <ul>
-                    <li><div class="pos-dot dot-gk"></div> Marcelo Carné</li>
-                    <li><div class="pos-dot dot-def"></div> Gabriel Mancha</li>
-                    <li><div class="pos-dot dot-def"></div> Marcelo</li>
-                    <li><div class="pos-dot dot-def"></div> Betão</li>
-                    <li><div class="pos-dot dot-mid"></div> Ynaiã</li>
-                    <li><div class="pos-dot dot-mid"></div> Norton</li>
-                    <li><div class="pos-dot dot-mid"></div> Luiz Otávio</li>
-                    <li><div class="pos-dot dot-mid"></div> Zé Mário</li>
-                    <li><div class="pos-dot dot-att"></div> Rodrigo Alves</li>
-                    <li><div class="pos-dot dot-att"></div> Sillas</li>
-                    <li><div class="pos-dot dot-att"></div> Daniel Amorim</li>
-                </ul>
+            <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.6;">
+                <p style="margin-bottom: 10px;">• <b>Pressão:</b> Velo Clube marcou apenas 1 gol no campeonato e precisa vencer para sair do Z4.</p>
+                <p style="margin-bottom: 10px;">• <b>Invicto:</b> Corinthians vem de 2 vitórias seguidas e nunca perdeu para o Velo em jogos oficiais.</p>
+                <p>• <b>Desfalque de Peso:</b> Memphis Depay foi poupado pela comissão técnica.</p>
             </div>
         </div>
     </div>
 
-    <div id="odds" class="container" style="display: none;">
-        <div class="card">
-            <h3>💰 Cotações (Média)</h3>
-            <p style="font-size: 0.8rem; margin-bottom: 15px; color: var(--text-secondary);">Mercado 1x2 - Resultado Final</p>
+    <div id="tab-odds" class="content-area">
+        <div class="app-card">
+            <div class="card-header">
+                <span class="card-title"><span class="icon-box" style="color: var(--accent-green)">💰</span> Resultado Final (1x2)</span>
+            </div>
             
-            <div class="odds-container">
-                <div class="odd-box">
-                    <span style="font-size: 0.8rem">Velo</span>
-                    <span class="odd-val">4.50</span>
+            <div class="market-odds">
+                <div class="odd-btn">
+                    <span class="odd-label">VELO</span>
+                    <span class="odd-number">5.50</span>
                 </div>
-                <div class="odd-box">
-                    <span style="font-size: 0.8rem">Empate</span>
-                    <span class="odd-val">3.40</span>
+                <div class="odd-btn">
+                    <span class="odd-label">EMPATE</span>
+                    <span class="odd-number">3.00</span>
                 </div>
-                <div class="odd-box" style="border-color: var(--success); background: rgba(34, 197, 94, 0.1);">
-                    <span style="font-size: 0.8rem">SCCP</span>
-                    <span class="odd-val">1.82</span>
+                <div class="odd-btn hot">
+                    <span class="odd-label">SCCP</span>
+                    <span class="odd-number">1.83</span>
                 </div>
+            </div>
+        </div>
+
+        <div class="app-card">
+            <div class="card-header">
+                <span class="card-title"><span class="icon-box">📊</span> Probabilidade Real</span>
+            </div>
+            <div class="prob-bar-container">
+                <div class="bar-seg seg-1"></div>
+                <div class="bar-seg seg-x"></div>
+                <div class="bar-seg seg-2"></div>
+            </div>
+            <div class="prob-legend">
+                <span>Velo (20%)</span>
+                <span>Empate (25%)</span>
+                <span>SCCP (55%)</span>
             </div>
         </div>
         
-        <div class="card">
-            <h3>📈 Probabilidade Real</h3>
-            <div style="margin-top: 10px;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px;">
-                    <span>Velo Clube</span>
-                    <span>20%</span>
-                </div>
-                <div class="progress-bar"><div class="progress-fill fill-home" style="width: 20%"></div></div>
-
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px;">
-                    <span>Empate</span>
-                    <span>25%</span>
-                </div>
-                <div class="progress-bar"><div class="progress-fill fill-draw" style="width: 25%"></div></div>
-
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px;">
-                    <span>Corinthians</span>
-                    <span>55%</span>
-                </div>
-                <div class="progress-bar"><div class="progress-fill fill-away" style="width: 55%"></div></div>
+        <div class="app-card" style="border-left: 3px solid var(--accent-green);">
+            <div style="font-size: 0.8rem; color: var(--text-muted);">
+                <b style="color: var(--accent-green);">Dica de Aposta:</b> Menos de 2.5 gols na partida (Odds 1.70). O ataque do Velo é ineficiente e o campo do Benitão costuma travar o jogo.
             </div>
         </div>
     </div>
 
-    <div id="simulador" class="container" style="display: none;">
-        <div class="card" style="text-align: center;">
-            <h3>🤖 Super Computador IA</h3>
-            <p style="color: var(--text-secondary); margin-bottom: 20px;">Clique abaixo para simular o resultado da partida com base em estatísticas e momento atual.</p>
+    <div id="tab-lineups" class="content-area">
+        <div class="app-card">
+            <div class="card-header">
+                <span class="card-title">
+                    <img src="https://upload.wikimedia.org/wikipedia/pt/b/b4/Corinthians_simbolo.png" style="width: 20px; margin-right: 5px;"> 
+                    Corinthians
+                </span>
+                <span style="font-size: 0.7rem; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">4-3-3</span>
+            </div>
             
-            <button class="sim-btn" onclick="runSimulation()">🎲 SIMULAR PARTIDA AGORA</button>
+            <div class="lineup-row"><span class="player-num">1</span><span class="player-name">Hugo Souza</span><span class="player-pos pos-gk">GOL</span></div>
+            <div class="lineup-row"><span class="player-num">2</span><span class="player-name">Matheuzinho</span><span class="player-pos pos-def">LAD</span></div>
+            <div class="lineup-row"><span class="player-num">4</span><span class="player-name">Félix Torres</span><span class="player-pos pos-def">ZAG</span></div>
+            <div class="lineup-row"><span class="player-num">3</span><span class="player-name">Gustavo Henrique</span><span class="player-pos pos-def">ZAG</span></div>
+            <div class="lineup-row"><span class="player-num">6</span><span class="player-name">Hugo</span><span class="player-pos pos-def">LAE</span></div>
+            <div class="lineup-row"><span class="player-num">5</span><span class="player-name">Raniele</span><span class="player-pos pos-mid">VOL</span></div>
+            <div class="lineup-row"><span class="player-num">8</span><span class="player-name">Charles</span><span class="player-pos pos-mid">MC</span></div>
+            <div class="lineup-row"><span class="player-num">10</span><span class="player-name">Rodrigo Garro</span><span class="player-pos pos-mid">MEI</span></div>
+            <div class="lineup-row"><span class="player-num">7</span><span class="player-name">Romero</span><span class="player-pos pos-att">ATA</span></div>
+            <div class="lineup-row"><span class="player-num">11</span><span class="player-name">Talles Magno</span><span class="player-pos pos-att">ATA</span></div>
+            <div class="lineup-row"><span class="player-num">9</span><span class="player-name">Yuri Alberto</span><span class="player-pos pos-att">CTA</span></div>
+        </div>
 
-            <div id="simResult" class="sim-result">
-                <div style="font-size: 3rem; margin: 20px 0;">👇</div>
-                <h2 id="finalScore" style="font-size: 2.5rem; margin-bottom: 10px;">0 - 0</h2>
-                <p id="matchSummary" style="color: var(--highlight); font-weight: bold;">Calculando...</p>
+        <div class="app-card">
+            <div class="card-header">
+                <span class="card-title">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Velo_Clube_Logo.png" style="width: 20px; margin-right: 5px;"> 
+                    Velo Clube
+                </span>
+                <span style="font-size: 0.7rem; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">4-4-2</span>
+            </div>
+             <div class="lineup-row"><span class="player-num">12</span><span class="player-name">Marcelo Carné</span><span class="player-pos pos-gk">GOL</span></div>
+             <div class="lineup-row"><span class="player-num">2</span><span class="player-name">Mancha</span><span class="player-pos pos-def">LAD</span></div>
+             <div class="lineup-row"><span class="player-num">3</span><span class="player-name">Marcelo</span><span class="player-pos pos-def">ZAG</span></div>
+             <div class="lineup-row"><span class="player-num">4</span><span class="player-name">Betão</span><span class="player-pos pos-def">ZAG</span></div>
+             <div class="lineup-row"><span class="player-num">6</span><span class="player-name">Léo Campos</span><span class="player-pos pos-def">LAE</span></div>
+             <div class="lineup-row"><span class="player-num">5</span><span class="player-name">Norton</span><span class="player-pos pos-mid">VOL</span></div>
+             <div class="lineup-row"><span class="player-num">8</span><span class="player-name">Felipinho</span><span class="player-pos pos-mid">MC</span></div>
+             <div class="lineup-row"><span class="player-num">10</span><span class="player-name">Zé Mário</span><span class="player-pos pos-mid">MEI</span></div>
+             <div class="lineup-row"><span class="player-num">11</span><span class="player-name">Douglas Skilo</span><span class="player-pos pos-att">ATA</span></div>
+             <div class="lineup-row"><span class="player-num">9</span><span class="player-name">Mayco</span><span class="player-pos pos-att">CTA</span></div>
+        </div>
+    </div>
+
+    <div id="tab-ai" class="content-area">
+        <div class="app-card ai-card">
+            <div style="position: relative; z-index: 2;">
+                <h3 style="margin-bottom: 10px; font-size: 1.2rem;">🔮 Oráculo IA</h3>
+                <p style="font-size: 0.85rem; color: #c7d2fe; margin-bottom: 25px;">Utilizando 1.200 pontos de dados do Paulistão para prever o resultado.</p>
                 
-                <div style="margin-top: 20px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; text-align: left;">
-                    <p style="font-size: 0.8rem; color: var(--text-secondary);">Eventos simulados:</p>
-                    <ul id="matchEvents" style="font-size: 0.85rem; margin-left: 20px; margin-top: 5px;">
-                    </ul>
+                <button class="sim-btn" onclick="runAISimulation()">
+                    <span style="font-size: 1.2rem;">🎲</span> SIMULAR RESULTADO
+                </button>
+
+                <div id="ai-result" class="ai-result-box">
+                    <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Previsão Final</span>
+                    
+                    <div class="score-big" id="score-display">0 - 0</div>
+                    
+                    <div style="display: inline-block; background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; margin-bottom: 15px;">
+                        <span id="ai-narrative">Calculando...</span>
+                    </div>
+
+                    <div style="text-align: left; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; font-size: 0.8rem; color: #cbd5e1;">
+                        <ul id="ai-events" style="list-style: none;">
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
 
     <script>
-        function showTab(tabId) {
-            // Esconder todas as tabs
-            const containers = document.querySelectorAll('.container');
-            containers.forEach(div => div.style.display = 'none');
+        // Navegação de Abas
+        function switchTab(tabId, btn) {
+            // Esconde todas as abas
+            document.querySelectorAll('.content-area').forEach(el => {
+                el.classList.remove('active');
+                el.style.display = 'none';
+            });
             
-            // Remover classe active dos botões
-            const navItems = document.querySelectorAll('.nav-item');
-            navItems.forEach(item => item.classList.remove('active'));
+            // Remove active dos botões
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
 
-            // Mostrar a tab selecionada
-            document.getElementById(tabId).style.display = 'block';
+            // Mostra a aba alvo
+            const target = document.getElementById(tabId);
+            target.style.display = 'block';
+            // Pequeno delay para permitir a animação CSS funcionar
+            setTimeout(() => target.classList.add('active'), 10);
             
-            // Adicionar active no botão correto
-            event.target.classList.add('active');
+            // Ativa botão
+            btn.classList.add('active');
         }
 
-        function runSimulation() {
-            const resultDiv = document.getElementById('simResult');
-            const scoreDisplay = document.getElementById('finalScore');
-            const summaryDisplay = document.getElementById('matchSummary');
-            const eventsList = document.getElementById('matchEvents');
-            
-            resultDiv.style.display = 'block';
-            scoreDisplay.innerHTML = '<span style="font-size:1.5rem">Calculando...</span>';
-            summaryDisplay.innerText = '';
-            eventsList.innerHTML = '';
+        // Lógica da Simulação (Mantida, mas melhorada)
+        function runAISimulation() {
+            const resultBox = document.getElementById('ai-result');
+            const scoreDisplay = document.getElementById('score-display');
+            const narrativeDisplay = document.getElementById('ai-narrative');
+            const eventsList = document.getElementById('ai-events');
+            const btn = document.querySelector('.sim-btn');
 
-            // Simulação fake de delay
+            // UI Loading state
+            btn.innerHTML = '⚙️ PROCESSANDO...';
+            btn.style.opacity = '0.7';
+            resultBox.style.display = 'none';
+
             setTimeout(() => {
-                // Lógica ponderada (Corinthians favorito)
+                resultBox.style.display = 'block';
+                resultBox.style.animation = 'slideUp 0.5s ease';
+                
+                // Lógica Probabilística (Favorece Corinthians, mas permite zebras)
                 const rand = Math.random();
-                let scoreHome = 0;
-                let scoreAway = 0;
+                let home = 0, away = 0;
                 let narrative = "";
+                let events = [];
 
-                // 50% chance SCCP ganha, 30% empate, 20% Velo
-                if (rand < 0.20) {
-                    // Zebra
-                    scoreHome = 1; scoreAway = 0;
-                    narrative = "Zebra histórica! Velo segura a pressão.";
-                    eventsList.innerHTML += "<li>88' ⚽ Gol do Velo (Contra-ataque)</li>";
-                } else if (rand < 0.50) {
-                    // Empate
-                    scoreHome = 1; scoreAway = 1;
-                    narrative = "Jogo truncado, tudo igual no Benitão.";
-                    eventsList.innerHTML += "<li>30' ⚽ Gol do Corinthians (Yuri Alberto)</li>";
-                    eventsList.innerHTML += "<li>65' ⚽ Gol do Velo (Bola parada)</li>";
+                if (rand < 0.15) { 
+                    // Zebra (15%)
+                    home = 1; away = 0;
+                    narrative = "🔥 Zebra! Velo se fecha e acha um gol.";
+                    events = ["88' ⚽ Gol do Velo (Contra-ataque)", "94' 🧤 Milagre de Marcelo Carné"];
+                } else if (rand < 0.45) {
+                    // Empate (30%)
+                    home = 1; away = 1;
+                    narrative = "⚖️ Jogo travado e com poucas chances.";
+                    events = ["32' ⚽ Yuri Alberto (SCCP)", "55' ⚽ Gol de empate (Velo)"];
                 } else {
-                    // Vitória SCCP
-                    const winType = Math.random();
-                    if(winType < 0.6) {
-                        scoreHome = 0; scoreAway = 2;
-                        narrative = "Vitória segura do Timão.";
-                        eventsList.innerHTML += "<li>15' ⚽ Gol do Corinthians (Garro)</li>";
-                        eventsList.innerHTML += "<li>70' ⚽ Gol do Corinthians (Yuri Alberto)</li>";
-                    } else {
-                        scoreHome = 1; scoreAway = 2;
-                        narrative = "Vitória suada fora de casa.";
-                        eventsList.innerHTML += "<li>22' ⚽ Gol do Corinthians</li>";
-                        eventsList.innerHTML += "<li>50' ⚽ Gol do Velo</li>";
-                        eventsList.innerHTML += "<li>85' ⚽ Gol da Vitória (Romero/Reserva)</li>";
-                    }
+                    // Vitória SCCP (55%)
+                    home = 0; away = Math.floor(Math.random() * 3) + 1; // 1, 2 ou 3 gols
+                    narrative = "🦅 Corinthians impõe qualidade técnica.";
+                    events = ["18' ⚽ Rodrigo Garro (Falta)", `${70 + Math.floor(Math.random()*15)}' ⚽ Yuri Alberto`];
+                    if(away > 2) events.push("89' ⚽ Romero (Contra-ataque)");
                 }
 
-                scoreDisplay.innerText = `${scoreHome} - ${scoreAway}`;
-                summaryDisplay.innerText = narrative;
+                scoreDisplay.innerText = `${home} - ${away}`;
+                narrativeDisplay.innerText = narrative;
                 
-            }, 1500);
+                eventsList.innerHTML = "";
+                events.forEach(ev => {
+                    eventsList.innerHTML += `<li style="margin-bottom: 5px;">${ev}</li>`;
+                });
+
+                // Reset Button
+                btn.innerHTML = '<span style="font-size: 1.2rem;">🎲</span> SIMULAR NOVAMENTE';
+                btn.style.opacity = '1';
+
+            }, 1200);
         }
     </script>
 </body>
