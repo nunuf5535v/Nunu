@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MatchDay: Velo Clube vs Corinthians</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --accent-corinthians: #ffffff;
+            --accent-velo: #e11d48; /* Vermelho Velo */
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --highlight: #38bdf8;
+            --success: #22c55e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at top right, #1e1b4b, var(--bg-dark));
+            color: var(--text-primary);
+            padding-bottom: 80px;
+        }
+
+        /* HEADER & PLACAR */
+        header {
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .league-badge {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 35%;
+        }
+
+        .team img {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
+            margin-bottom: 8px;
+        }
+
+        .team-name { font-weight: bold; font-size: 0.9rem; }
+
+        .vs-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .match-time {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--highlight);
+        }
+
+        .match-status {
+            font-size: 0.75rem;
+            background: rgba(255,255,255,0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-top: 5px;
+        }
+
+        /* TABS DE NAVEGAÇÃO */
+        .nav-tabs {
+            display: flex;
+            overflow-x: auto;
+            padding: 15px;
+            gap: 15px;
+            scrollbar-width: none;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .nav-item {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            white-space: nowrap;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item.active {
+            background: var(--highlight);
+            color: #000;
+            font-weight: bold;
+        }
+
+        /* CONTEÚDO GERAL */
+        .container {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h3 {
+            margin-bottom: 15px;
+            border-left: 4px solid var(--highlight);
+            padding-left: 10px;
+            font-size: 1.1rem;
+        }
+
+        /* INFO SECTION */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .info-item {
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .info-label { font-size: 0.7rem; color: var(--text-secondary); display: block;}
+        .info-val { font-size: 0.9rem; font-weight: bold; }
+
+        /* LINEUPS */
+        .lineup-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .player-list ul { list-style: none; }
+        .player-list li {
+            font-size: 0.85rem;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+        }
+        .pos-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .dot-gk { background: #eab308; }
+        .dot-def { background: #3b82f6; }
+        .dot-mid { background: #22c55e; }
+        .dot-att { background: #ef4444; }
+
+        /* ODDS */
+        .odds-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .odd-box {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 1px solid transparent;
+        }
+        .odd-box:hover { border-color: var(--highlight); transform: translateY(-2px); }
+        .odd-val { display: block; font-size: 1.2rem; font-weight: bold; color: var(--success); margin-top: 5px; }
+        
+        /* SIMULAÇÃO */
+        .sim-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, var(--highlight), #3b82f6);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+        .sim-result {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            height: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            margin: 10px 0 20px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 1s ease-in-out;
+        }
+        .fill-home { background: var(--accent-velo); }
+        .fill-draw { background: var(--text-secondary); }
+        .fill-away { background: var(--accent-corinthians); }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            padding: 20px;
+            opacity: 0.5;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="league-badge">Paulistão 2026 • 5ª Rodada</span>
+        <div class="scoreboard">
+            <div class="team">
+                <img src="https://nunuf5535v.github.io/Corinthians-MONACO/download.png" alt="Velo Clube" onerror="this.src='https://placehold.co/70x70/red/white?text=VELO'">
+                <span class="team-name">Velo Clube</span>
+            </div>
+            
+            <div class="vs-container">
+                <span class="match-time">20:30</span>
+                <span class="match-status">HOJE</span>
+            </div>
+
+            <div class="team">
+                <img src="https://nunuf5535v.github.io/Corinthians-MONACO/download (1).png" alt="Corinthians" onerror="this.src='https://placehold.co/70x70/black/white?text=SCCP'">
+                <span class="team-name">Corinthians</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="nav-tabs">
+        <div class="nav-item active" onclick="showTab('resumo')">Resumo</div>
+        <div class="nav-item" onclick="showTab('escalacoes')">Escalações</div>
+        <div class="nav-item" onclick="showTab('odds')">Odds & Prob.</div>
+        <div class="nav-item" onclick="showTab('simulador')">⚡ Simulador</div>
+    </div>
+
+    <div id="resumo" class="container">
+        <div class="card">
+            <h3>📍 Detalhes da Partida</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Estádio</span>
+                    <span class="info-val">Benitão (Rio Claro)</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Transmissão</span>
+                    <span class="info-val">Record, CazéTV, Max</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Árbitro</span>
+                    <span class="info-val">Flávio R. Souza</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">VAR</span>
+                    <span class="info-val">Marcio H. Gois</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>📊 Momento & Curiosidades</h3>
+            <ul style="list-style: none; padding: 0;">
+                <li style="margin-bottom: 12px; font-size: 0.9rem;">📉 <b>Ataque Fraco:</b> O Velo Clube marcou apenas 1 gol em 4 jogos.</li>
+                <li style="margin-bottom: 12px; font-size: 0.9rem;">🛡️ <b>Tabu:</b> O Corinthians nunca perdeu para o Velo em jogos oficiais.</li>
+                <li style="margin-bottom: 12px; font-size: 0.9rem;">⚠️ <b>Classificação:</b> Corinthians (8º), Velo Clube (13º).</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="escalacoes" class="container" style="display: none;">
+        <div class="card">
+            <h3 style="color: var(--accent-corinthians);">🦅 Corinthians (Provável)</h3>
+            <p style="font-size: 0.8rem; margin-bottom: 10px; color: var(--text-secondary);">Téc: Dorival Júnior (Time Misto)</p>
+            <div class="player-list">
+                <ul>
+                    <li><div class="pos-dot dot-gk"></div> Hugo Souza</li>
+                    <li><div class="pos-dot dot-def"></div> Pedro Milans (Matheuzinho)</li>
+                    <li><div class="pos-dot dot-def"></div> Gabriel Paulista</li>
+                    <li><div class="pos-dot dot-def"></div> João P. Tchoca</li>
+                    <li><div class="pos-dot dot-def"></div> Hugo (Bidu)</li>
+                    <li><div class="pos-dot dot-mid"></div> Raniele</li>
+                    <li><div class="pos-dot dot-mid"></div> Charles</li>
+                    <li><div class="pos-dot dot-mid"></div> Matheus Pereira</li>
+                    <li><div class="pos-dot dot-mid"></div> Rodrigo Garro</li>
+                    <li><div class="pos-dot dot-mid"></div> André Carrillo</li>
+                    <li><div class="pos-dot dot-att"></div> Yuri Alberto</li>
+                </ul>
+            </div>
+            <div style="margin-top: 15px; font-size: 0.75rem; color: #ef4444;">
+                🚑 <b>Desfalques:</b> Memphis Depay, Cacá.
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="color: var(--accent-velo);">🔴 Velo Clube (Provável)</h3>
+            <p style="font-size: 0.8rem; margin-bottom: 10px; color: var(--text-secondary);">Téc: Pintado</p>
+            <div class="player-list">
+                <ul>
+                    <li><div class="pos-dot dot-gk"></div> Marcelo Carné</li>
+                    <li><div class="pos-dot dot-def"></div> Gabriel Mancha</li>
+                    <li><div class="pos-dot dot-def"></div> Marcelo</li>
+                    <li><div class="pos-dot dot-def"></div> Betão</li>
+                    <li><div class="pos-dot dot-mid"></div> Ynaiã</li>
+                    <li><div class="pos-dot dot-mid"></div> Norton</li>
+                    <li><div class="pos-dot dot-mid"></div> Luiz Otávio</li>
+                    <li><div class="pos-dot dot-mid"></div> Zé Mário</li>
+                    <li><div class="pos-dot dot-att"></div> Rodrigo Alves</li>
+                    <li><div class="pos-dot dot-att"></div> Sillas</li>
+                    <li><div class="pos-dot dot-att"></div> Daniel Amorim</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="odds" class="container" style="display: none;">
+        <div class="card">
+            <h3>💰 Cotações (Média)</h3>
+            <p style="font-size: 0.8rem; margin-bottom: 15px; color: var(--text-secondary);">Mercado 1x2 - Resultado Final</p>
+            
+            <div class="odds-container">
+                <div class="odd-box">
+                    <span style="font-size: 0.8rem">Velo</span>
+                    <span class="odd-val">4.50</span>
+                </div>
+                <div class="odd-box">
+                    <span style="font-size: 0.8rem">Empate</span>
+                    <span class="odd-val">3.40</span>
+                </div>
+                <div class="odd-box" style="border-color: var(--success); background: rgba(34, 197, 94, 0.1);">
+                    <span style="font-size: 0.8rem">SCCP</span>
+                    <span class="odd-val">1.82</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>📈 Probabilidade Real</h3>
+            <div style="margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px;">
+                    <span>Velo Clube</span>
+                    <span>20%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill fill-home" style="width: 20%"></div></div>
+
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px;">
+                    <span>Empate</span>
+                    <span>25%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill fill-draw" style="width: 25%"></div></div>
+
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px;">
+                    <span>Corinthians</span>
+                    <span>55%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill fill-away" style="width: 55%"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="simulador" class="container" style="display: none;">
+        <div class="card" style="text-align: center;">
+            <h3>🤖 Super Computador IA</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">Clique abaixo para simular o resultado da partida com base em estatísticas e momento atual.</p>
+            
+            <button class="sim-btn" onclick="runSimulation()">🎲 SIMULAR PARTIDA AGORA</button>
+
+            <div id="simResult" class="sim-result">
+                <div style="font-size: 3rem; margin: 20px 0;">👇</div>
+                <h2 id="finalScore" style="font-size: 2.5rem; margin-bottom: 10px;">0 - 0</h2>
+                <p id="matchSummary" style="color: var(--highlight); font-weight: bold;">Calculando...</p>
+                
+                <div style="margin-top: 20px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; text-align: left;">
+                    <p style="font-size: 0.8rem; color: var(--text-secondary);">Eventos simulados:</p>
+                    <ul id="matchEvents" style="font-size: 0.85rem; margin-left: 20px; margin-top: 5px;">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Dados não oficiais. Criado para fins demonstrativos.</p>
+    </footer>
+
+    <script>
+        function showTab(tabId) {
+            // Esconder todas as tabs
+            const containers = document.querySelectorAll('.container');
+            containers.forEach(div => div.style.display = 'none');
+            
+            // Remover classe active dos botões
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+
+            // Mostrar a tab selecionada
+            document.getElementById(tabId).style.display = 'block';
+            
+            // Adicionar active no botão correto
+            event.target.classList.add('active');
+        }
+
+        function runSimulation() {
+            const resultDiv = document.getElementById('simResult');
+            const scoreDisplay = document.getElementById('finalScore');
+            const summaryDisplay = document.getElementById('matchSummary');
+            const eventsList = document.getElementById('matchEvents');
+            
+            resultDiv.style.display = 'block';
+            scoreDisplay.innerHTML = '<span style="font-size:1.5rem">Calculando...</span>';
+            summaryDisplay.innerText = '';
+            eventsList.innerHTML = '';
+
+            // Simulação fake de delay
+            setTimeout(() => {
+                // Lógica ponderada (Corinthians favorito)
+                const rand = Math.random();
+                let scoreHome = 0;
+                let scoreAway = 0;
+                let narrative = "";
+
+                // 50% chance SCCP ganha, 30% empate, 20% Velo
+                if (rand < 0.20) {
+                    // Zebra
+                    scoreHome = 1; scoreAway = 0;
+                    narrative = "Zebra histórica! Velo segura a pressão.";
+                    eventsList.innerHTML += "<li>88' ⚽ Gol do Velo (Contra-ataque)</li>";
+                } else if (rand < 0.50) {
+                    // Empate
+                    scoreHome = 1; scoreAway = 1;
+                    narrative = "Jogo truncado, tudo igual no Benitão.";
+                    eventsList.innerHTML += "<li>30' ⚽ Gol do Corinthians (Yuri Alberto)</li>";
+                    eventsList.innerHTML += "<li>65' ⚽ Gol do Velo (Bola parada)</li>";
+                } else {
+                    // Vitória SCCP
+                    const winType = Math.random();
+                    if(winType < 0.6) {
+                        scoreHome = 0; scoreAway = 2;
+                        narrative = "Vitória segura do Timão.";
+                        eventsList.innerHTML += "<li>15' ⚽ Gol do Corinthians (Garro)</li>";
+                        eventsList.innerHTML += "<li>70' ⚽ Gol do Corinthians (Yuri Alberto)</li>";
+                    } else {
+                        scoreHome = 1; scoreAway = 2;
+                        narrative = "Vitória suada fora de casa.";
+                        eventsList.innerHTML += "<li>22' ⚽ Gol do Corinthians</li>";
+                        eventsList.innerHTML += "<li>50' ⚽ Gol do Velo</li>";
+                        eventsList.innerHTML += "<li>85' ⚽ Gol da Vitória (Romero/Reserva)</li>";
+                    }
+                }
+
+                scoreDisplay.innerText = `${scoreHome} - ${scoreAway}`;
+                summaryDisplay.innerText = narrative;
+                
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
