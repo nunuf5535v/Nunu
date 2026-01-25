@@ -574,59 +574,99 @@
 
         // Lógica da Simulação (Mantida, mas melhorada)
         function runAISimulation() {
-            const resultBox = document.getElementById('ai-result');
-            const scoreDisplay = document.getElementById('score-display');
-            const narrativeDisplay = document.getElementById('ai-narrative');
-            const eventsList = document.getElementById('ai-events');
-            const btn = document.querySelector('.sim-btn');
+    const resultBox = document.getElementById('ai-result');
+    const scoreDisplay = document.getElementById('score-display');
+    const narrativeDisplay = document.getElementById('ai-narrative');
+    const eventsList = document.getElementById('ai-events');
+    const btn = document.querySelector('.sim-btn');
 
-            // UI Loading state
-            btn.innerHTML = '⚙️ PROCESSANDO...';
-            btn.style.opacity = '0.7';
-            resultBox.style.display = 'none';
+    btn.innerHTML = '🤖 PROCESSANDO MILHÕES DE POSSIBILIDADES...';
+    btn.style.opacity = '0.7';
+    resultBox.style.display = 'none';
 
-            setTimeout(() => {
-                resultBox.style.display = 'block';
-                resultBox.style.animation = 'slideUp 0.5s ease';
-                
-                // Lógica Probabilística (Favorece Corinthians, mas permite zebras)
-                const rand = Math.random();
-                let home = 0, away = 0;
-                let narrative = "";
-                let events = [];
+    setTimeout(() => {
+        resultBox.style.display = 'block';
+        resultBox.style.animation = 'slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1)';
+        
+        const jogadores = ["Rodrigo Garro", "Pedro Raul", "Vitinho", "Dieguinho", "André Carrillo", "Charles"];
+        const defesas = ["Hugo Souza", "João Pedro Tchoca", "Gabriel Paulista", "Pedro Milans", "Hugo Farias"];
+        const rand = Math.random();
+        
+        let home = 0, away = 0, narrative = "", events = [];
 
-                if (rand < 0.15) { 
-                    // Zebra (15%)
-                    home = 1; away = 0;
-                    narrative = "🔥 Zebra! Velo se fecha e acha um gol.";
-                    events = ["88' ⚽ Gol do Velo (Contra-ataque)", "94' 🧤 Milagre de Marcelo Carné"];
-                } else if (rand < 0.45) {
-                    // Empate (30%)
-                    home = 1; away = 1;
-                    narrative = "⚖️ Jogo travado e com poucas chances.";
-                    events = ["32' ⚽ Yuri Alberto (SCCP)", "55' ⚽ Gol de empate (Velo)"];
-                } else {
-                    // Vitória SCCP (55%)
-                    home = 0; away = Math.floor(Math.random() * 3) + 1; // 1, 2 ou 3 gols
-                    narrative = "🦅 Corinthians impõe qualidade técnica.";
-                    events = ["18' ⚽ Rodrigo Garro (Falta)", `${70 + Math.floor(Math.random()*15)}' ⚽ Yuri Alberto`];
-                    if(away > 2) events.push("89' ⚽ vitinho (Contra-ataque)");
-                }
+        // --- 1. CONFIGURAÇÃO DO AMBIENTE ---
+        events.push(`00' 🏟️ Estádio: Neo Química Arena (Público: ${Math.floor(Math.random()*15000)+30000} pagantes)`);
+        events.push(`00' 🌦️ Clima: ${["Chuva forte", "Calor de 32°C", "Noite fria", "Neblina"][Math.floor(Math.random()*4)]}`);
+        events.push(`01' 🏁 Início de partida! O árbitro autoriza o primeiro toque na bola.`);
 
-                scoreDisplay.innerText = `${home} - ${away}`;
-                narrativeDisplay.innerText = narrative;
-                
-                eventsList.innerHTML = "";
-                events.forEach(ev => {
-                    eventsList.innerHTML += `<li style="margin-bottom: 5px;">${ev}</li>`;
-                });
-
-                // Reset Button
-                btn.innerHTML = '<span style="font-size: 1.2rem;">🎲</span> SIMULAR NOVAMENTE';
-                btn.style.opacity = '1';
-
-            }, 1200);
+        // --- 2. LÓGICA DE RESULTADO ---
+        if (rand < 0.15) { // ZEBRA
+            home = Math.floor(Math.random() * 2) + 1; away = 0;
+            narrative = "😱 DESASTRE! O Corinthians parou na retranca e o Velo Clube foi mortal.";
+        } else if (rand < 0.40) { // EMPATE
+            home = Math.floor(Math.random() * 3); away = home;
+            narrative = "⚖️ EQUILÍBRIO! Jogo truncado e muito estudo entre as equipes.";
+        } else { // VITÓRIA CORINTHIANS
+            home = 0; away = Math.floor(Math.random() * 5) + 1;
+            narrative = away > 3 ? "🔥 MASSACRE! Atuação de gala do Timão com futebol arte." : "🦅 VITÓRIA! Corinthians domina as ações e garante os três pontos.";
         }
+
+        // --- 3. GERADOR DE GOLS (Garante que o placar bata com os eventos) ---
+        for(let i = 0; i < home; i++) {
+            events.push(`${Math.floor(Math.random()*85)+5}' ⚽ GOL DO VELO CLUBE! ${["Contra-ataque veloz", "Falha defensiva", "Chute de fora da área", "Gol de escanteio"][Math.floor(Math.random()*4)]}.`);
+        }
+        for(let i = 0; i < away; i++) {
+            let autor = jogadores[Math.floor(Math.random()*jogadores.length)];
+            let tipo = ["Golaço de falta", "Chute cruzado", "Cabeceio certeiro", "Pênalti bem batido", "Drible no goleiro"][Math.floor(Math.random()*5)];
+            events.push(`${Math.floor(Math.random()*85)+5}' ⚽ GOL DO CORINTHIANS! ${autor} faz: ${tipo}.`);
+        }
+
+        // --- 4. BANCO DE EVENTOS "GIGANTE" (Enchimento Dinâmico) ---
+        const bibliotecaGigante = [
+            `10' 🧤 DEFESAÇA! ${defesas[0]} busca a bola na "gaveta" em chute do Velo.`,
+            `15' 🟨 Amarelo para ${defesas[1]} por entrada atrasada no meio-campo.`,
+            `22' 💥 NO POSTE! ${jogadores[0]} solta a bomba e a trave treme até agora!`,
+            `30' 🚑 Jogo parado para atendimento de ${jogadores[Math.floor(Math.random()*jogadores.length)]}.`,
+            `38' 🖥️ VAR CHAMOU! Possível penalidade sendo revisada... O juiz diz: SEGUE O JOGO!`,
+            `44' 🟨 Cartão para ${jogadores[Math.floor(Math.random()*jogadores.length)]} por reclamação.`,
+            `45' ⏱️ +${Math.floor(Math.random()*4)+2} min de acréscimo no 1º tempo.`,
+            `52' 🔄 Substituição no Timão: Entra Pedro Milans para dar fôlego na lateral.`,
+            `60' 📣 A Fiel explode! Mosaico e fumaça tomam conta da Neo Química Arena.`,
+            `65' 🧤 Goleiro adversário opera um milagre em finalização de ${jogadores[1]}!`,
+            `72' 🟨 Mais um cartão! O jogo fica tenso e as faltas aumentam.`,
+            `77' 📏 Gol anulado! O VAR aponta impedimento de ${jogadores[2]} por milímetros.`,
+            `83' 🟥 EXPULSÃO! Cartão Vermelho para jogador do Velo após entrada violenta em Carrillo!`,
+            `88' 💥 Bola passa raspando a trave após finalização de Dieguinho!`,
+            `90' ⏱️ +${Math.floor(Math.random()*6)+4} min de acréscimo. Haja coração!`,
+            `95' 🧤 ${defesas[0]} sai de soco na área e garante a segurança da defesa.`
+        ];
+
+        // Sorteia 10 lances extras para o jogo ficar "cheio"
+        events.push(...bibliotecaGigante.sort(() => 0.5 - Math.random()).slice(0, 10));
+
+        // --- 5. ORDENAÇÃO E RENDERIZAÇÃO ---
+        events.sort((a, b) => parseInt(a) - parseInt(b));
+        
+        scoreDisplay.innerText = `${home} - ${away}`;
+        narrativeDisplay.innerHTML = `<strong>Resumo da Partida:</strong> ${narrative}`;
+        
+        eventsList.innerHTML = "";
+        events.forEach(ev => {
+            let cor = "";
+            if(ev.includes('⚽')) cor = "border-left: 5px solid #2ecc71; background: #1e2a1e; font-weight: bold;";
+            else if(ev.includes('🟥')) cor = "border-left: 5px solid #e74c3c; background: #2a1e1e;";
+            else if(ev.includes('🟨')) cor = "border-left: 5px solid #f1c40f;";
+            else if(ev.includes('🖥️')) cor = "border-left: 5px solid #3498db; color: #3498db;";
+            
+            eventsList.innerHTML += `<li style="margin-bottom: 8px; padding: 12px; border-radius: 6px; list-style: none; font-size: 0.95rem; border: 1px solid #333; ${cor}">${ev}</li>`;
+        });
+
+        btn.innerHTML = '<span style="font-size: 1.2rem;">🎲</span> SIMULAR NOVAMENTE';
+        btn.style.opacity = '1';
+
+    }, 1500);
+}
+
     </script>
 </body>
 </html>
