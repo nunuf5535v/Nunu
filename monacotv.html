@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <meta property="og:title" content="MONACO TV - O Melhor Streaming">
+    <meta property="og:description" content="Assista filmes e séries exclusivos (Dexter, Minecraft e muito mais) direto no seu celular.">
+    <meta property="og:image" content="https://nunuf5535v.github.io/Corinthians-MONACO/IMG-20251005-WA0280.jpg">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#E50914">
+    
+    <title>MONACO TV - Streaming</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #0f0f0f;
+            --card-bg: #1a1a1a;
+            --nav-bg: rgba(15, 15, 15, 0.95);
+            --primary: #E50914; 
+            --accent: #FFD700; 
+            --text-main: #ffffff;
+            --text-sec: #b3b3b3;
+            --radius: 8px;
+            --nav-height: 70px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            padding-bottom: calc(var(--nav-height) + 20px); 
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        h1, h2, h3 { font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; }
+        
+        /* Header */
+        header {
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.8) 50%, transparent 100%);
+            z-index: 50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { font-size: 28px; color: var(--primary); text-shadow: 0 0 20px rgba(229, 9, 20, 0.7); }
+        .logo span { color: var(--text-main); }
+
+        /* Search Bar */
+        .search-container { padding: 0 20px; margin-bottom: 20px; position: relative; }
+        .search-input {
+            width: 100%;
+            padding: 14px 20px;
+            padding-left: 45px;
+            border-radius: 15px;
+            border: 1px solid #333;
+            background: #1a1a1a;
+            color: white;
+            font-size: 15px;
+            outline: none;
+            transition: 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .search-input:focus { border-color: var(--primary); background: #222; }
+        .search-icon { position: absolute; left: 35px; top: 14px; color: #666; }
+
+        /* Hero Section */
+        .hero {
+            height: 58vh;
+            position: relative;
+            background-image: url('https://m.media-amazon.com/images/M/MV5BMzgxNzUwZTctMzliNi00MDUwLWE4YzctNjgwMDE2OWQwNzMxXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'); /* Dexter */
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 25px;
+            mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+            border-bottom: 1px solid #222;
+        }
+        .hero-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, var(--bg-color) 15%, rgba(0,0,0,0.2) 60%, transparent 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 25px;
+        }
+        .hero-buttons { display: flex; gap: 12px; margin-top: 15px; }
+
+        /* Scrollers */
+        .section-title { padding: 0 20px; font-size: 19px; margin-bottom: 12px; color: var(--text-main); display: flex; align-items: center; gap: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .section-title i { color: var(--primary); font-size: 16px; }
+
+        .movie-scroller {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding: 0 20px 25px 20px;
+            gap: 12px;
+            scrollbar-width: none; 
+        }
+        .movie-scroller::-webkit-scrollbar { display: none; }
+
+        .movie-card {
+            flex: 0 0 135px; 
+            scroll-snap-align: start;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .movie-card:active { transform: scale(0.95); opacity: 0.8; }
+
+        .poster {
+            width: 135px;
+            height: 200px;
+            border-radius: var(--radius);
+            object-fit: cover;
+            background-color: #222;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+            border: 1px solid #333;
+        }
+
+        .tag-series {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(4px);
+            color: #fff;
+            padding: 3px 6px;
+            font-size: 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .premium-tag {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: var(--primary);
+            color: white;
+            padding: 3px 7px;
+            font-size: 9px;
+            border-radius: 4px;
+            font-weight: 800;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            z-index: 2;
+        }
+
+        /* Grid Filmes */
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 10px;
+            padding: 15px;
+        }
+        .movie-grid .movie-card { flex: none; width: 100%; }
+        .movie-grid .poster { width: 100%; height: auto; aspect-ratio: 2/3; }
+
+        /* Nav Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 25px; 
+            left: 20px;
+            right: 20px;
+            width: auto;
+            height: 70px;
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #777;
+            font-size: 10px;
+            background: none;
+            border: none;
+            gap: 4px;
+        }
+        .nav-item i { font-size: 20px; transition: 0.3s; }
+        .nav-item.active { color: white; font-weight: 600; }
+        .nav-item.active i { color: var(--primary); transform: translateY(-3px); text-shadow: 0 5px 15px rgba(229, 9, 20, 0.5); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            display: none;
+            align-items: flex-end;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .modal-overlay.open { display: flex; opacity: 1; }
+        
+        .modal-content {
+            background: #151515;
+            width: 100%;
+            border-radius: 30px 30px 0 0;
+            padding: 30px 25px 110px 25px; 
+            position: relative;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.1); /* Efeito Bouncy */
+            max-height: 92vh;
+            overflow-y: auto;
+            box-shadow: 0 -10px 50px rgba(0,0,0,0.8);
+            border-top: 1px solid #333;
+        }
+        .modal-overlay.open .modal-content { transform: translateY(0); }
+
+        .modal-header-img {
+            width: 110px;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.7);
+            border: 1px solid #333;
+        }
+
+        .btn-watch {
+            flex: 2;
+            background: white;
+            color: black;
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+            box-shadow: 0 5px 20px rgba(255,255,255,0.2);
+            transition: 0.2s;
+        }
+        .btn-watch:active { transform: scale(0.97); }
+        
+        .btn-list-add {
+            flex: 1;
+            background: #2a2a2a;
+            color: white;
+            border: 1px solid #333;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            gap: 4px;
+            transition: 0.2s;
+        }
+        .btn-list-add:active { background: #333; }
+        .btn-list-add i { font-size: 18px; }
+
+        /* ESTILO PARA SÉRIES */
+        .episodes-container {
+            margin-top: 25px;
+            background: #1f1f1f;
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid #333;
+            display: none; /* Só aparece se for série */
+        }
+        
+        .episodes-header {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+        .episode-list {
+            max-height: 250px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 5px;
+        }
+        
+        /* Scrollbar fina para episódios */
+        .episode-list::-webkit-scrollbar { width: 4px; }
+        .episode-list::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+
+        .episode-card {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: white;
+            transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .episode-card:active { background: #333; transform: scale(0.98); }
+        .episode-card:hover { border-color: var(--primary); }
+        
+        .episode-info { display: flex; flex-direction: column; gap: 4px; }
+        .ep-title { font-weight: bold; font-size: 14px; }
+        .ep-sub { font-size: 11px; color: #888; }
+        .ep-play-icon { 
+            width: 35px; height: 35px; 
+            background: var(--primary); 
+            border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: bold;
+            margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+        }
+
+        /* Utilitarios */
+        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div id="view-home" class="tab-content active">
+        <header>
+            <div class="logo">MONACO <span>TV</span></div>
+            <div style="position: relative;">
+                <i class="fa-regular fa-bell" style="font-size: 22px; color: white;"></i>
+                <div style="position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: var(--primary); border-radius: 50%;"></div>
+            </div>
+        </header>
+
+        <div class="hero">
+            <div class="hero-overlay">
+                <div style="background: var(--primary); color: white; padding: 5px 12px; font-weight: 800; font-size: 10px; border-radius: 6px; width: fit-content; margin-bottom: 12px; box-shadow: 0 0 15px var(--primary);">TOP 1 MUNDIAL</div>
+                <h1 style="font-size: 46px; line-height: 0.9; margin-bottom: 8px; text-shadow: 0 2px 10px rgba(0,0,0,0.8);">DEXTER</h1>
+                <p style="color: #ddd; font-size: 14px; margin-bottom: 20px; text-shadow: 0 2px 5px rgba(0,0,0,1);">O serial killer mais amado está de volta.</p>
+                <div class="hero-buttons">
+                    <button class="btn-watch" onclick="openSearch('Dexter')" style="height: 50px;">
+                        <i class="fa-solid fa-play"></i> Assistir Agora
+                    </button>
+                    <button class="btn-list-add" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(5px); height: 50px; flex: 0.5;">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" class="search-input" placeholder="Buscar filmes, séries..." id="searchInput" onkeyup="filterMovies()">
+        </div>
+
+        <div id="favorites-section" style="display: none;">
+            <div class="section-title">
+                <i class="fa-solid fa-heart" style="color: var(--primary);"></i> Minha Lista
+            </div>
+            <div class="movie-scroller" id="scroll-favorites"></div>
+        </div>
+
+        <div class="section-title">
+            <i class="fa-solid fa-fire-flame-curved"></i> Bombando Agora
+        </div>
+        <div class="movie-scroller" id="scroll-releases"></div>
+
+        <div class="section-title">
+            <i class="fa-solid fa-crown"></i> Monaco Originals
+        </div>
+        <div class="movie-scroller" id="scroll-exclusives"></div>
+
+        <div class="section-title">
+            <i class="fa-solid fa-child-reaching"></i> Kids & Família
+        </div>
+        <div class="movie-scroller" id="scroll-kids"></div>
+        
+        <div class="footer-info">
+            <p style="color: #444; font-size: 11px; text-align: center; padding: 40px; opacity: 0.6;">
+                Monaco TV Premium © 2025<br>By Nunu
+            </p>
+        </div>
+    </div>
+
+    <div id="view-movies" class="tab-content">
+        <header>
+            <div class="logo">CATÁLOGO <span>COMPLETO</span></div>
+        </header>
+        <div class="search-container" style="margin-top: 10px;">
+            <i class="fa-solid fa-filter search-icon"></i>
+            <input type="text" class="search-input" placeholder="Filtrar por nome..." id="searchInputGrid" onkeyup="filterGrid()">
+        </div>
+        <div class="movie-grid" id="all-movies-grid"></div>
+    </div>
+
+    <div id="view-live" class="tab-content">
+        <header>
+            <div class="logo">MONACO <span>LIVE</span></div>
+            <div style="background: red; color: white; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; animation: blink 2s infinite; box-shadow: 0 0 10px red;">AO VIVO</div>
+        </header>
+        <div style="padding: 20px;">
+            <div style="position: relative; padding-bottom: 56.25%; height: 0; background: #000; border-radius: 16px; overflow: hidden; box-shadow: 0 15px 40px rgba(229, 9, 20, 0.25); border: 1px solid #333;">
+                <iframe src="https://www.youtube.com/live/dxYTTxhgVNU?si=C4-xW-dGOhjsDthS" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"></iframe>
+            </div>
+            
+            <div style="margin-top: 25px;">
+                <h3 style="margin-bottom: 15px; font-size: 20px;">Programação</h3>
+                <div style="background: #1a1a1a; padding: 18px; border-radius: 14px; display: flex; gap: 15px; align-items: center; margin-bottom: 12px; border: 1px solid #333;">
+                    <div style="color: var(--primary); font-weight: 800; font-size: 14px;">AGORA</div>
+                    <div style="font-size: 15px; font-weight: 600;">Brasil x Escócia - Mundial</div>
+                </div>
+                <div style="background: #1a1a1a; padding: 18px; border-radius: 14px; display: flex; gap: 15px; align-items: center; opacity: 0.5;">
+                    <div style="color: white; font-weight: bold;">20:00</div>
+                    <div style="font-size: 14px;">Estreia: Karate Kid Lendas</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-settings" class="tab-content">
+        <header>
+            <div class="logo">PERFIL & <span>SUPORTE</span></div>
+        </header>
+        <div style="padding: 20px;">
+            <div style="background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%); padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 25px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                <div style="width: 70px; height: 70px; background: var(--primary); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 0 20px rgba(229, 9, 20, 0.5);">👑</div>
+                <h3 style="font-size: 20px;">Membro VIP Monaco</h3>
+                <p style="color: #666; font-size: 13px; margin-top: 5px;">Acesso Ilimitado • 4K HDR</p>
+            </div>
+
+             <div style="background: #1a1a1a; padding: 25px; border-radius: 20px; border: 1px solid #222;">
+                <h3 style="font-size: 17px; margin-bottom: 5px;">Contato Direto</h3>
+                <p style="color: #888; font-size: 12px; margin-bottom: 15px;">Fale com o dono para pedidos de filmes.</p>
+                
+                <a href="https://wa.me/5511959391525?text=Olá,%20vim%20pelo%20site%20Monaco%20TV!%20Gostaria%20de%20falar%20com%20o%20dono." target="_blank" class="btn-whatsapp">
+                    <i class="fa-brands fa-whatsapp" style="font-size: 22px;"></i> Falar no WhatsApp
+                </a>
+
+                <div style="height: 1px; background: #333; margin: 25px 0;"></div>
+
+                <h3 style="font-size: 17px; margin-bottom: 5px;">Aplicativo Android</h3>
+                <p style="color: #888; font-size: 12px; margin-bottom: 15px;">Melhor desempenho e downloads.</p>
+                <a href="https://www.mediafire.com/file/tlxl9e39gq8tvgt/MEGA+OFICIAL+%F0%9F%87%B2%F0%9F%87%A8MONACO-NUNU-AKAME%E2%9C%A8/file" target="_blank" class="btn-watch" style="background: #333; color: white; border: 1px solid #555;">
+                    <i class="fa-brands fa-android"></i> Baixar APK
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('home', this)">
+            <i class="fa-solid fa-house"></i>
+            <span>Início</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('movies', this)">
+            <i class="fa-solid fa-clapperboard"></i>
+            <span>Catálogo</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('live', this)">
+            <i class="fa-solid fa-tower-broadcast" style="color: red;"></i>
+            <span>Ao Vivo</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('settings', this)">
+            <i class="fa-solid fa-user"></i>
+            <span>Perfil</span>
+        </button>
+    </nav>
+
+    <div class="modal-overlay" id="movieModal" onclick="closeModal(event)">
+        <div class="modal-content">
+            <div style="width: 50px; height: 6px; background: #333; border-radius: 10px; margin: -10px auto 25px auto;"></div> 
+            
+            <button class="modal-close" style="position: absolute; top: 25px; right: 25px; background: #333; border: none; color: white; width: 30px; height: 30px; border-radius: 50%; font-weight: bold; cursor: pointer;" onclick="document.getElementById('movieModal').classList.remove('open')">✕</button>
+            
+            <div style="display: flex; gap: 20px; align-items: flex-start;">
+                <img src="" id="modalImg" class="modal-header-img">
+                <div style="flex: 1; padding-top: 5px;">
+                    <h2 id="modalTitle" style="font-size: 24px; line-height: 1.1;">Titulo</h2>
+                    <div class="modal-meta" style="margin: 12px 0; display: flex; gap: 8px; align-items: center;">
+                        <span id="modalYear" style="background: #333; padding: 3px 8px; border-radius: 6px; font-size: 11px; color: white; font-weight: bold;">2024</span>
+                        <span id="modalGenre" style="font-size: 12px; color: #bbb;">Ação</span>
+                    </div>
+                </div>
+            </div>
+
+            <p id="modalDesc" style="margin: 25px 0; font-size: 14px; color: #ccc; line-height: 1.6;">Descrição...</p>
+            
+            <div id="single-action-container" style="display: flex; gap: 10px;">
+                <a href="#" id="modalLink" target="_blank" class="btn-watch">
+                    <i class="fa-solid fa-play"></i> ASSISTIR
+                </a>
+                <button class="btn-list-add" onclick="toggleFavorite()" id="btnFavorite">
+                    <i class="fa-regular fa-heart"></i>
+                    <span>Lista</span>
+                </button>
+            </div>
+
+            <div id="series-action-container" class="episodes-container">
+                <div class="episodes-header">
+                    <span><i class="fa-solid fa-list-ul"></i> Episódios Disponíveis</span>
+                    <button class="btn-list-add" onclick="toggleFavorite()" id="btnFavoriteSeries" style="height: 30px; flex: none; padding: 0 15px; flex-direction: row; gap: 5px;">
+                        <i class="fa-regular fa-heart" style="font-size: 14px;"></i> <span>Salvar</span>
+                    </button>
+                </div>
+                <div class="episode-list" id="episodesList">
+                    </div>
+            </div>
+
+            <div style="margin-top: 25px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; display: flex; gap: 12px; align-items: center;">
+                <i class="fa-solid fa-download" style="color: var(--primary); font-size: 18px;"></i>
+                <div style="font-size: 12px; color: #999;">
+                    Deseja baixar para assistir offline? <a href="https://www.mediafire.com/file/tlxl9e39gq8tvgt/MEGA+OFICIAL+%F0%9F%87%B2%F0%9F%87%A8MONACO-NUNU-AKAME%E2%9C%A8/file" style="color: white; text-decoration: underline;">Use nosso App Oficial</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+       
+        let favorites = JSON.parse(localStorage.getItem('monacoFavorites')) || [];
+        let currentMovieIndex = null;
+
+        const movies = [
+    {
+        title: "Minecraft: O Filme",
+        year: "2025",
+        genre: "Aventura",
+        image: "https://images.justwatch.com/poster/328629763/s718/a-minecraft-movie.jpg",
+        link: "https://mega.nz/file/ZC0miZhB#hKWd_DPh8vK7Z66bB2JAQ086l9mMTB6MKpZK6DMnjxQ",
+        desc: "Quatro desajustados — Garrett 'The Garbage Man' Garrison, Henry, Natalie e Cassian — são transportados por um portal misterioso para o Mundo Superior: uma terra bizarra e cúbica que prospera com a imaginação. Para voltar para casa, eles terão que dominar este mundo e protegê-lo de coisas malignas como Piglins e Zombies, contando com a ajuda de um artesão especialista inesperado, Steve.",
+        category: "release",
+type: "movie"
+    },
+    {
+        title: "Karate Kid: Lendas",
+        year: "2025",
+        genre: "Ação/Drama",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXYtkbQ1aCy0_l2rR2wyIBHCjcNv0LJUCZ_DNUHGnjEQ&s=10", 
+        link: "https://mega.nz/file/oDEnTJgA#uXywBu_sPHv_Bd9zU0azgHDJvXdQj9dEtNoW1q4i0vM",
+        desc: "O novo capítulo da lendária franquia une gerações. Li Fong é um jovem chinês que vive na Costa Leste dos EUA e encontra força e direção através das artes marciais. Sob a mentoria conjunta de Daniel LaRusso e do Sr. Han, ele deve aprender que o caratê é mais do que apenas luta, enfrentando adversários que testam seu caráter e suas novas habilidades enquanto o legado de Miyagi continua vivo.",
+        category: "release",
+type: "movie"
+    },
+    {
+        title: "Como Treinar o Seu Dragão",
+        year: "2025",
+        genre: "Live Action",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2Uo3AGryvE17XYQkzwrNTrPxX2JkzV5uQ_A1t9ECCZA&s=10",
+        link: "https://mega.nz/file/NHc2HQCT#kGg8i9kjW8G72YUSnyFyuy7DPIboXdaSrjhqFzGIKzA",
+        desc: "Nesta épica adaptação live-action, Soluço é um jovem viking que não se encaixa na tradição de sua tribo de caçadores de dragões. Sua vida muda drasticamente quando ele encontra e faz amizade com Banguela, um dragão Fúria da Noite ferido. Juntos, eles precisam provar aos vikings e aos dragões que podem coexistir em harmonia, enfrentando preconceitos ancestrais e uma ameaça que coloca toda a ilha de Berk em perigo.",
+        category: "release",
+type: "movie"
+    },
+    {
+        title: "Premonição 6",
+        year: "2025",
+        genre: "Terror",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_20KXXKVuLJtCY7Cjpcd_k3DREdY2RCVuhUaJJJQktQ&s=10",
+        link: "https://mega.nz/file/wPlllKjL#Dw2NJ47XqcdvGv0FicHaEUfUUyNyLLfvwidvdlWTjI0",
+        desc: "A Morte retorna com um novo e aterrorizante plano. Uma jovem começa a ter visões perturbadoras sobre o seu próprio fim e o de seus colegas após um acidente catastrófico em um arranha-céu. Ao tentar trapacear o destino, ela descobre que sua linhagem familiar carrega uma conexão sombria com o 'design da morte' que remonta a gerações. Agora, os sobreviventes precisam quebrar um ciclo de sangue antes que o destino os alcance de forma brutal.",
+        category: "release",
+type: "movie"
+    },
+    {
+        title: "Guerreiras do K-Pop",
+        year: "2025",
+        genre: "Musical/Ação",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbIlJ8qMlDGK2V8-unudVqDwon204hr-DEj1pXeZdLuw&s=10",
+        link: "https://www.mediafire.com/file/intr2pqw51cavnl/Guerreiras+do+K-Pop-NUNU+AKAME.mp4/file",
+        desc: "Um grupo feminino de K-Pop de sucesso mundial esconde um segredo perigoso: elas são, na verdade, uma equipe de elite de caçadoras de demônios. Entre turnês esgotadas e coreografias perfeitas, elas utilizam suas habilidades especiais para combater forças malignas que tentam invadir nossa dimensão através da energia da música. Quando um mal antigo ameaça destruir o mundo durante seu maior show, as ídolos devem usar todo o seu talento para a batalha final.",
+        category: "release",
+type: "movie"
+    },
+    {
+        title: "Extermínio: A Evolução",
+        year: "2025",
+        genre: "Zumbi/Terror",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSnafxgU5T_aFZwGXulNS8xaI4ppx2csuVYKkNLQS6VFrEpya9tindzhdfG&s=10",
+        link: "https://www.mediafire.com/file/1wj9u9tsflqttmy/Exterm%C3%ADnio+A+Evolu%C3%A7%C3%A3o-NUNU+AKAME.mp4/file",
+        desc: "Vinte e oito anos após o surto inicial do vírus da raiva que devastou a Grã-Bretanha, a sociedade tenta se reconstruir em áreas seguras. No entanto, o vírus sofreu uma mutação silenciosa e devastadora. Quando uma nova cepa mais inteligente e agressiva emerge, os sobreviventes se veem em uma corrida desesperada pela sobrevivência. O filme explora as consequências de longo prazo do apocalipse e a luta contínua da humanidade contra uma infecção que recusa morrer.",
+        category: "release",
+type: "movie"
+    },
+    {
+        title: "Festa da Salsicha",
+        year: "2016",
+        genre: "Animação/+18",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXOzsrH4hy8TG5Oql1vljdMxO2fN2yMSSyz6-i3sMDxQ&s=10",
+        link: "https://mega.nz/file/pK9DGBJT#uZ80v9VNm2HbuBx5wAcLAsxidpmohhhpLSWP03FJ3Xk",
+        desc: "Dentro de um supermercado, os alimentos vivem na esperança de serem escolhidos pelos humanos, a quem consideram deuses, para serem levados ao 'Grande Além'. Frank, uma salsicha, acaba descobrindo a terrível verdade: os humanos na verdade os cozinham e devoram. Agora, ele precisa unir seus amigos alimentos, incluindo um pão de cachorro-quente chamado Brenda, para organizar uma revolta sangrenta e hilária contra os gigantes famintos.",
+        category: "comedy"
+    },
+    {
+        title: "Invocação do Mal 2",
+        year: "2016",
+        genre: "Terror",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTn73JQ42rwTmpVxuUkDJhOc9KPwpb1q-Mg8GoL-aPYg&s=10",
+        link: "https://mega.nz/file/dekTUS5A#e7sQVESZZMlvLTW9hM4eHgrdiyxmNMOovOziftNS3qg",
+        desc: "Os renomados investigadores paranormais Ed e Lorraine Warren viajam para o bairro de Enfield, no norte de Londres, para ajudar uma mãe solteira que cria seus quatro filhos sozinha em uma casa atormentada por espíritos maliciosos. Lá, eles enfrentam o caso mais aterrorizante de suas carreiras, envolvendo uma possessão demoníaca real e uma entidade sinistra que assume a forma de uma freira, colocando a vida de ambos em risco extremo.",
+        category: "horror",
+type: "movie"
+    },
+    {
+        title: "Annabelle 2",
+        year: "2017",
+        genre: "Terror",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8QEBwZfdwgaA0qi7KBQnooIbcRHILr8dO8xkKErtSgw&s=10",
+        link: "https://mega.nz/file/BXUTWaRL#qQLS_b9Dp4wAjfAPYQTCBYOLFkcd95_2GPMU7Fpr0pU",
+        desc: "Anos após a trágica morte de sua filha, um habilidoso fabricante de bonecas e sua esposa decidem abrir sua casa para uma freira e várias meninas de um orfanato que foi fechado. No entanto, o que deveria ser um novo começo se transforma em um pesadelo quando uma das meninas descobre uma boneca escondida, Annabelle, que se torna o canal para uma entidade demoníaca sedenta por almas, transformando a residência em um campo de batalha sobrenatural.",
+        category: "horror",
+type: "movie"
+    },
+    {
+        title: "Titanic",
+        year: "1997",
+        genre: "Romance",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_rVu6Tq6YD0d5tenNTSlUIRiqPRZJd5mvGWqOVGxIYQ&s=10",
+        link: "https://mega.nz/file/NW1j3bCS#MGgirs-hEoQxCXnU_M5CQYw3k5CqRbS7ySrKvmaO6no",
+        desc: "Rose DeWitt Bukater é uma jovem da alta sociedade que se sente sufocada por sua vida aristocrática e um noivado forçado. A bordo do luxuoso RMS Titanic, ela conhece Jack Dawson, um artista pobre e espírito livre que ganhou sua passagem em um jogo de cartas. Os dois se apaixonam perdidamente, desafiando as normas sociais, enquanto o navio 'insubstituível' ruma para uma colisão fatal com um iceberg no Atlântico Norte.",
+        category: "classics"
+    },
+    {
+        title: "Procurando Nemo",
+        year: "2003",
+        genre: "Animação",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8u30VVDQ8jJBvhlhrSxVXwtj5BP8ZyMkgZ4iP4oNOUQ&s=10",
+        link: "https://mega.nz/file/of0FlDxa#IKBU_0XoMby7J8BMajAJuJR1o3MirwyDrvotHA1pdrg",
+        desc: "Após seu filho único, Nemo, ser capturado por um mergulhador na Grande Barreira de Corais e levado para um aquário em Sydney, Marlin, um peixe-palhaço superprotetor, embarca em uma jornada épica pelo oceano para resgatá-lo. Ao longo do caminho, ele conta com a ajuda de Dory, uma peixinha azul com perda de memória recente, enfrentando tubarões vegetarianos, águas-vivas perigosas e tartarugas surfistas em uma aventura inesquecível.",
+        category: "kids",
+type: "movie"
+    },
+    {
+        title: "Carros",
+        year: "2006",
+        genre: "Animação",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSG0KB5EWkEKlDkp6xjedIj7oGRRgsP_u_nDNIJTjLgbg&s=10",
+        link: "https://mega.nz/file/xSdj1DAL#UCeHnwu_kuBB9J2VszBmwEAHo-ce5vbKomEg_XoYe5M",
+        desc: "O ambicioso e arrogante carro de corrida Relâmpago McQueen está focado apenas em vencer a Copa Pistão e conseguir um patrocínio milionário. No entanto, ele acaba se perdendo na famosa Rota 66 e vai parar na esquecida cidade de Radiator Springs. Lá, ele conhece personagens excêntricos como o guincho Mate e o sábio Doc Hudson, que o ensinam que existem coisas muito mais importantes na vida do que troféus e fama.",
+        category: "kids",
+type: "movie"
+    },
+    {
+        title: "Extraordinário",
+        year: "2017",
+        genre: "Drama",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0d4oNMU4tQefDKZO4IeB2kgJgyPcxZZDZSR6fZFsjZg&s=10",
+        link: "https://mega.nz/file/tblnWQ7S#ow9q_9HiPhlOo0WMyUIv3m-uqCslZBO1fdD961L2dNE",
+        desc: "Auggie Pullman é um garoto que nasceu com uma deformidade facial rara, o que o levou a passar por diversas cirurgias e a ser educado em casa pela maior parte da infância. Ao entrar pela primeira vez em uma escola regular no quinto ano, ele precisa enfrentar o bullying, o olhar de julgamento dos colegas e a dificuldade de fazer amigos. Com o apoio de sua família, Auggie prova que não se pode passar despercebido quando se nasceu para se destacar.",
+        category: "drama"
+    },
+    {
+        title: "Velozes e Furiosos 1",
+        year: "2001",
+        genre: "Ação",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNZSvrvtgGbLFittzgg0jU4RTrv4H6dMH_GMkGqqiyyw&s=10",
+        link: "https://mega.nz/file/ZP9nVKZT#KeXWI03amTMoxzvaJppP0THnoVupRWNUsdO7kqFpjh8",
+        desc: "Brian O'Conner é um policial infiltrado que entra no perigoso submundo das corridas de rua ilegais em Los Angeles para investigar uma série de roubos a caminhões. Ele se aproxima de Dominic Toretto, o líder carismático das corridas e principal suspeito. Conforme Brian ganha a confiança de Toretto e se envolve com sua irmã, Mia, ele começa a questionar sua lealdade à polícia enquanto mergulha em um mundo de adrenalina e velocidade.",
+        category: "action",
+type: "movie"
+    },
+    {
+        title: "Deadpool & Wolverine",
+        year: "2024",
+        genre: "Ação/Comédia",
+        image: "https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg",
+        link: "https://mega.nz/file/YSMH1Spb#ksFArH_FqXhAk6plQLbnORXRoKMESCxXtTnqy51q2bM",
+        desc: "O mercenário tagarela Wade Wilson, agora tentando viver uma vida comum, é retirado de sua linha temporal pela AVT (Autoridade de Variância Temporal) para uma missão que pode salvar o multiverso. Para ter sucesso, ele precisa da ajuda de um Wolverine de outro universo, que está lidando com seus próprios traumas e falhas. Os dois heróis improváveis devem unir forças em uma jornada repleta de violência, humor ácido e participações especiais épicas.",
+        category: "release",
+type: "movie"
+    },
+    {
+        title: "O Orfanato",
+        year: "2007",
+        genre: "Terror",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1IlD7EVBlXX1sD17glJAyqW2OqsMv33HS72SE_YEjDA&s=10",
+        link: "https://mega.nz/file/cekxiKwQ#ibZdXst9VuopaZ32SIyLDuFiICf1WIxPA9AgWDu3QQ4",
+        desc: "Laura retorna com seu marido e filho para o casarão onde funcionava o orfanato em que ela cresceu, com o plano de transformá-lo em uma casa para crianças deficientes. O terror começa quando seu filho, Simón, começa a falar com amigos imaginários sinistros e desaparece misteriosamente durante uma festa. Desesperada, Laura mergulha nos segredos obscuros do passado da casa para descobrir o que realmente aconteceu com as crianças que viviam lá.",
+        category: "horror",
+type: "movie"
+    },
+    {
+        title: "Maldita Sorte",
+        year: "2007",
+        genre: "Comédia",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ6-BxMdZD_-sA07d5wB6G92BonHBw545cU_YFhY9ZuwA&s=10",
+        link: "https://mega.nz/file/5D1xxTCY#hZjClOeNevWop3wksipG8uvjREH4AGvOocfe9RNzcxM",
+        desc: "Charlie Kagan sofre de uma maldição bizarra desde a infância: toda mulher com quem ele dorme encontra o amor verdadeiro e se casa com o próximo homem que conhece. Isso o torna extremamente popular entre as mulheres que buscam casamento, mas o impede de ter um relacionamento real. Quando ele conhece Cam, a mulher dos seus sonhos, ele tenta desesperadamente evitar que a maldição se concretize para não perdê-la para sempre.",
+        category: "comedy"
+    },
+    {
+        title: "O Poço",
+        year: "2019",
+        genre: "Suspense",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKWwdfUX46ySenCPXwt2_MemXKB6QC2V2TsqhdHjNMqQ&s=10",
+        link: "http://www.mediafire.com/file/fw31xv471411jci/O_Po%C3%A7o-NUNU_AKAME.mp4",
+        desc: "Em uma prisão vertical futurista conhecida como 'O Centro de Autogestão', os detentos são alojados em dois por nível. Uma plataforma de comida desce pelos andares: os que estão no topo comem fartamente, enquanto os que estão embaixo morrem de fome ou lutam pelas sobras. O filme acompanha Goreng, um homem que entrou voluntariamente no poço e agora tenta encontrar uma maneira de subverter o sistema cruel e garantir que a comida chegue a todos.",
+        category: "thriller",
+type: "movie"
+    },
+    {
+        title: "A Entidade",
+        year: "2012",
+        genre: "Terror",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTemHbct4o1V23ZQQi6ONVw3v50kc9aNwifKxBAXVbjag&s=10",
+        link: "http://www.mediafire.com/file/b5j52a2d9p1my1n/A_Entidade-_NUNU_AKAME.mp4",
+        desc: "Ellison Oswalt é um escritor de crimes reais que se muda com sua família para uma casa onde ocorreu um assassinato terrível, na esperança de encontrar inspiração para seu novo livro. No sótão, ele descobre uma caixa com rolos de filmes caseiros em Super 8 que mostram diversas famílias sendo mortas de formas brutais. Conforme ele investiga, percebe que as mortes estão ligadas a uma entidade sobrenatural antiga que agora ameaça sua própria família.",
+        category: "horror",
+type: "movie"
+    },
+    {
+        title: "Homem-Aranha 3",
+        year: "2007",
+        genre: "Ação",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkjx9U7RPhnTSqzVNDAdXvTRyBohxPCT4ripiel_5_Gg&s=10",
+        link: "https://www.mediafire.com/file/mwgr8qnigbvjax3/Homem-Aranha+3-+NUNU+AKAME.mp4/file",
+        desc: "Peter Parker finalmente encontrou um equilíbrio entre sua vida pessoal e seus deveres como Homem-Aranha. No entanto, tudo muda quando uma substância negra alienígena se adere ao seu uniforme, aumentando seus poderes mas despertando um lado obscuro e vingativo. Peter agora precisa enfrentar vilões poderosos como o Homem-Areia e o Novo Duende, além de combater a influência do simbionte que dará origem ao seu maior inimigo: Venom.",
+        category: "action",
+type: "movie"
+    },
+    {
+        title: "Divertida Mente",
+        year: "2015",
+        genre: "Animação",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVGxU2NafSfcEraO6bUrvswEqpjgkhOZhOsPacGYZNCw&s=10",
+        link: "https://www.mediafire.com/file/kt7hdzq70xsiu8d/Divertida+Mente-+NUNU+AKAME.mp4/file",
+        desc: "Dentro da mente da jovem Riley, cinco emoções — Alegria, Tristeza, Medo, Raiva e Nojinho — trabalham incansavelmente no 'Centro de Controle' para guiar sua vida. Quando Riley se muda para uma nova cidade, a Alegria e a Tristeza acabam se perdendo nas profundezas da memória de longo prazo. Agora, as duas precisam cooperar para retornar ao controle e ajudar Riley a enfrentar as mudanças difíceis de sua nova fase de vida.",
+        category: "kids",
+type: "movie"
+    },
+    {
+        title: "As Branquelas",
+        year: "2004",
+        genre: "Comédia",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfS1DO9PrOgXU_KX_in72tqtRj8xJTIjEI8SYyvmCekQ&s",
+        link: "https://www.mediafire.com/file/zzcj31nibo10ul7/as+branquelas-+NUNU+AKAME.mp4/file",
+        desc: "Kevin e Marcus Copeland são dois agentes federais que estão na corda bamba após um erro em uma operação. Para salvar seus empregos, eles aceitam a missão de escoltar duas irmãs herdeiras brancas e ricas, as irmãs Wilson, para um evento de gala nos Hamptons. Quando as irmãs se recusam a aparecer após um pequeno acidente, os agentes decidem se disfarçar como elas, criando situações hilárias e absurdas para manter o disfarce.",
+        category: "comedy"
+    },
+    {
+        title: "Terrifier: O Início",
+        year: "2023",
+        genre: "Terror Slasher",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFOPD-CKAXFuO5QWM1u5nObvw72uMbKi45Rj-Utx7KjQ&s=10",
+        link: "https://www.mediafire.com/file/76d9prd9jm4vsg8/Terrifier+O+Início-NUNU+AKAME.mp4/file",
+        desc: "Este prelúdio mergulha nas origens sádicas de Art, o Palhaço. Na noite de Halloween, uma babá descobre uma fita VHS misteriosa contendo três histórias de terror que parecem reais demais para serem apenas ficção. Em cada conto, o silencioso e grotesco Art aparece para espalhar caos e assassinatos brutais. O filme estabelece o tom sombrio e o gore extremo que se tornaram a marca registrada de um dos novos ícones do terror moderno.",
+        category: "horror",
+type: "movie"
+    },
+    {
+        title: "Scooby! O Filme",
+        year: "2020",
+        genre: "Animação",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb0WlDVmVQP0jv0PXEhsr3vhXkMF1ABLSmbkQdHvl8nw&s=10",
+        link: "https://mega.nz/file/PSoWHRZZ#waUQfWrD5o9t9CT5_tW0JRy5Hp5SPJHcyvwevwV4ZWU",
+        desc: "A história nunca antes contada da origem da Mistério S.A. O filme revela como Scooby-Doo e Salsicha se conheceram na infância e como se uniram aos jovens detetives Fred, Velma e Daphne. Agora, o grupo enfrenta seu maior desafio: um plano para libertar o cão fantasma Cérbero no mundo. No meio da aventura, Scooby descobre que tem um legado secreto e um destino épico que ele jamais poderia imaginar.",
+        category: "kids",
+type: "movie"
+    },
+    {
+        title: "Minha Mãe é uma Peça 3",
+        year: "2019",
+        genre: "Comédia BR",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkheUMo0XbQSjR7EOAVVZ20ekmtpVNONnjSolHqPza5g&s=10",
+        link: "https://mega.nz/file/uKRkCbCC#X_mkKrtklv1sr6iTrGX8_1Qoy9bCe-qP5f_LYzS-bag",
+        desc: "Dona Hermínia está de volta e precisa lidar com novas e emocionantes mudanças em sua família. Sua filha Marcelina está grávida e seu filho Juliano vai se casar, o que a deixa em um estado constante de ansiedade e intromissão hilária. Enquanto tenta se redescobrir como avó e aceitar que seus filhos cresceram, Hermínia também precisa lidar com a presença constante de seu ex-marido, Carlos Alberto, em sua vida.",
+        category: "comedy"
+    },
+            {
+                title: "Dexter: Ressurreição",
+                year: "2025",
+                genre: "Suspense / Crime",
+                image: "https://m.media-amazon.com/images/M/MV5BMzgxNzUwZTctMzliNi00MDUwLWE4YzctNjgwMDE2OWQwNzMxXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+                desc: "Dexter Morgan retorna. Após fingir sua morte, ele tenta viver uma vida nova, mas seus instintos sombrios e o passado nunca ficam enterrados por muito tempo. Uma nova caçada começa.",
+                category: "exclusive",
+                type: "series", // DEFINE QUE É SÉRIE
+                episodes: [
+                    { name: "EP 1: O Retorno Frio", link: "https://mega.nz/file/1LthVYRI#LirmeiZ_fnYpSXPO9a8b_h1-v9eRDDmCrb9-GFFm1Zg" },
+                    { name: "EP 2: Instinto Assassino", link: "https://mega.nz/file/NL12zaYZ#kaT0x9WPeEBaRSP9LeGPpwGs7WXSgZrhdwy9gJp_YwY" },
+                    { name: "EP 3: Copiloto Palpiteiro", link: "https://www.mediafire.com/file/qdvatz4lk7rcjdn/Copiloto+Palpiteiro-NUNU+AKAME.mp4/file" },
+                    { name: "EP 4: Me Chame de Red", link: "https://www.mediafire.com/file/549mesg83c9zdbc/Me+Chame+de+Red-NUNU+AKAME.mp4/file" },
+                    { name: "EP 5: Tesão Pra Matar", link: "https://www.mediafire.com/file/0t6pjjv8ad0ca9e/Tes%C3%A3o+Pra+Matar-NUNU+AKAME.mp4/file" }
+                ]
+            },
+    {
+        title: "Alice no País das Maravilhas",
+        year: "1951",
+        genre: "Animação/Fantasia",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmh_dqclUf00S3jQ0AgxrxSAjJTSA_oOS-vCs6NqaZUg&s=10",
+        link: "https://www.mediafire.com/file/i7orn49illnutxp/Alice_no_Pa%25C3%25ADs_das_Maravilhas-_NUNU_AKAME.mp4/file",
+        desc: "Acompanhe a jovem Alice numa jornada surreal após seguir um Coelho Branco apressado e cair num buraco que a leva ao País das Maravilhas. Lá, ela encontra um mundo onde as leis da lógica não se aplicam, conhecendo personagens icónicos como o Gato de Cheshire, o Chapeleiro Louco e a tirânica Rainha de Copas. Alice precisa de navegar por charadas e situações absurdas para encontrar o caminho de volta para casa.",
+        category: "classics"
+    },
+    {
+        title: "Para Todos os Garotos que Já Amei",
+        year: "2018",
+        genre: "Romance/Comédia",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtUN24okpTS5mLnzBRxiUafz5BB33VUC2FM-E5GvVQew&s=10",
+        link: "https://www.mediafire.com/file/y79u83tmckunrl7/Para+Todos+os+Garotos+que+Já+Amei-+NUNU+AKAME.mp4/file",
+        desc: "Lara Jean Covey escreve cartas de amor secretas para todos os rapazes por quem já se apaixonou, mas nunca teve a intenção de as enviar. A sua vida vira do avesso quando as cartas são misteriosamente enviadas para os destinatários, incluindo o namorado da sua irmã e o rapaz mais popular da escola, Peter Kavinsky. Para evitar um desastre social, Lara Jean e Peter começam um namoro de fachada, mas descobrem sentimentos reais pelo caminho.",
+        category: "romance"
+    },
+    {
+        title: "Turma da Mônica: Lições",
+        year: "2021",
+        genre: "Aventura/Família",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5t9KYJnRoqSijqgNL2JtoLnHl_kj9KALzB2DbcowYGQ&s=10",
+        link: "https://www.mediafire.com/file/soajjny20bg7nf4/Turma+da+Mônica+Lições-+NUNU+AKAME.mp4/file",
+        desc: "Após fugirem da escola por se esquecerem do trabalho de casa, Mônica, Cebolinha, Magali e Cascão precisam de enfrentar as consequências dos seus atos. Os pais decidem colocá-los em atividades separadas para que aprendam a ser independentes e façam novos amigos. Nesta jornada de amadurecimento, a turma descobre o verdadeiro valor da amizade e como lidar com os desafios do crescimento, enquanto tentam encontrar uma forma de se reunirem novamente.",
+        category: "kids",
+type: "movie"
+    },
+    {
+        title: "A Barraca do Beijo",
+        year: "2018",
+        genre: "Romance/Comédia",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS09jcWCP4jE9H4U6_Ge8DzTdHkWyHahGkrDzLi5CUKIA&s=10",
+        link: "https://www.mediafire.com/file/bl874mtfqh6j11l/A+Barraca+do+Beijo-NUNU+AKAME.mp4/file",
+        desc: "Elle Evans é uma adolescente que nunca foi beijada e decide gerir uma barraca do beijo no festival da escola. Para sua surpresa, ela acaba por beijar o seu 'crush' secreto, Noah Flynn, que é também o irmão mais velho e protetor do seu melhor amigo, Lee. O problema é que Elle e Lee têm regras estritas sobre a sua amizade, e uma delas proíbe qualquer envolvimento com familiares. Elle agora precisa de escolher entre seguir o seu coração ou manter a sua lealdade ao melhor amigo.",
+        category: "romance"
+    },
+    {
+        title: "Madagascar",
+        year: "2005",
+        genre: "Animação/Aventura",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNf9euNp_IY6Nh2BmRxSG_aFh4x6XF1uT4ZGFF9-n7rw&s=10",
+        link: "https://www.mediafire.com/file/kk6cde9y45kypbw/Madagascar-NUNU+AKAME.mp4/file",
+        desc: "No Jardim Zoológico de Central Park, o leão Alex, a zebra Marty, a girafa Melman e a hipopótamo Gloria vivem uma vida de luxo e fama. Insatisfeito, Marty decide fugir para conhecer a natureza selvagem, e os seus amigos acabam por ir atrás dele. Após uma série de peripécias, eles acabam naufragados na ilha exótica de Madagascar. Habituados à vida na cidade, o grupo precisa de aprender a sobreviver num ambiente selvagem real, onde os instintos de predador de Alex começam a despertar.",
+        category: "kids",
+type: "movie"
+    },
+    {
+        title: "Um Maluco no Golfe 2",
+        year: "2025",
+        genre: "Comédia/Esporte",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSq8ac8X_euDkNnMNeDKBzFcuKUWcFgaSRUBw1Qx3zgCQ&s=10",
+        link: "https://www.mediafire.com/file/y359oq4k0zu1jb9/Um+Maluco+no+Golfe+2-+NUNU+AKAME.mp4/file",
+        desc: "Décadas após a sua vitória lendária, Happy Gilmore está de volta para provar que ainda tem o swing mais poderoso (e temperamental) do golfe. Quando uma nova crise financeira ameaça a sua família ou um novo rival arrogante surge para desafiar o seu legado, Happy é forçado a sair da reforma. Com o seu estilo pouco ortodoxo e muita confusão, ele precisa de conquistar o green mais uma vez, provando que a paixão pelo jogo nunca morre.",
+        category: "comedy"
+    },
+    {
+        title: "Patos",
+        year: "2023",
+        genre: "Animação/Família",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRekh42WHppQ--g9pb9JFyS2onmAMldhdCwurNx3Ux-uQ&s=10",
+        link: "https://www.mediafire.com/file/xmf475ax304bcay/Patos-NUNUAKAME.mp4/file",
+        desc: "A família Mallard está um pouco estagnada. Enquanto o pai, Mack, se sente seguro a manter a família nos limites de um lago na Nova Inglaterra, a mãe, Pam, quer mudar as coisas e mostrar o mundo aos filhos. Depois de uma família de patos migrantes chegar ao seu lago com histórias emocionantes, Pam convence Mack a embarcar numa viagem em família, via Nova Iorque, até à Jamaica tropical. No entanto, os planos bem delineados rapidamente dão errado, levando-os a aventuras que nunca imaginaram.",
+        category: "kids",
+type: "movie"
+    },
+    {
+        title: "Motoqueiro Fantasma",
+        year: "2007",
+        genre: "Ação/Sobrenatural",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8dtjLoGmofkvzl6jSDp9muvf8KCN4df6xb-JATkKCdw&s=10",
+        link: "https://www.mediafire.com/file/dkth3e18f42vudq/motoqueiro+fantasma-MONACO-NUNU.mp4/file",
+        desc: "Johnny Blaze é um motociclista acrobata que faz um pacto com o diabo, Mephistopheles, para salvar a vida do seu pai. Em troca, ele torna-se o Motoqueiro Fantasma, o caçador de recompensas do demónio, condenado a percorrer a noite numa mota flamejante para recolher almas pecadoras. Quando o filho rebelde de Mephistopheles, Blackheart, chega à Terra para criar um novo inferno, Johnny precisa de usar os seus poderes amaldiçoados para proteger a humanidade e a mulher que ama.",
+        category: "action",
+type: "movie"
+    },
+    {
+        title: "365 Dias: Hoje",
+        year: "2022",
+        genre: "Drama/Romance/Erótico",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBScwNSBOr_1EmpOA9iENpV9mUz_6WCcyXg4AICgdZ1g&s=10",
+        link: "https://www.mediafire.com/file/1h3pxbk6fpeuwps/365+Dias+Hoje-NUNU+AKAME.mp4/file",
+        desc: "Laura e Massimo estão de volta, mais apaixonados e intensos do que nunca. No entanto, o novo começo do casal é complicado pelos laços familiares de Massimo e por um homem misterioso que entra na vida de Laura para conquistar o seu coração e confiança a qualquer custo. Entre traições, segredos e uma rivalidade perigosa no mundo do crime, a relação de ambos é testada até ao limite enquanto lutam para manter o seu império e o seu desejo vivo.",
+        category: "exclusive",
+type: "movie"
+    },
+    {
+        title: "A Guerra dos Mundos",
+        year: "2025",
+        genre: "Ficção Científica/Ação",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSF5csq3h3VnbqCwA_mAaMEBFfO2Q8A4_zrMIE0XStKlw&s=10",
+        link: "https://www.mediafire.com/file/f7pzveuja67iku1/A+Guerra+dos+Mundos-NUNU+AKAME.mp4/file",
+        desc: "Nesta reimaginação moderna do clássico, a Terra enfrenta uma invasão alienígena implacável por naves colossais que emergem do subsolo e do espaço profundo. Ray Ferrier é um pai divorciado que precisa de proteger os seus filhos enquanto o mundo colapsa ao seu redor sob o ataque de tripés gigantes equipados com raios desintegradores. É uma corrida desesperada pela sobrevivência, onde a humanidade descobre que as suas armas mais poderosas podem não ser suficientes contra uma inteligência superior.",
+        category: "action",
+type: "movie"
+    },
+    {
+        title: "A Última Missão",
+        year: "2025",
+        genre: "Ação/Thriller",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIM9RQxWdQklY58ojkefNmuBtewLIeZZRaWnra3AU91w&s=10",
+        link: "https://www.mediafire.com/file/8xvr5gdb6a47ku1/A+Última+Missão-MONACO+NUNU+AKAME.mp4/file",
+        desc: "Um agente veterano das forças especiais é retirado da sua reforma para uma missão final que ninguém mais consegue realizar. Ele precisa de infiltrar-se num território hostil para extrair informações que podem evitar um conflito global iminente. Conforme mergulha numa rede de conspirações e traições, ele percebe que a missão é uma armadilha e que os seus próprios aliados podem ser os seus maiores inimigos. Agora, ele terá de usar todas as suas habilidades letais para sobreviver e expor a verdade.",
+        category: "action",
+type: "movie"
+    },
+    {
+        title: "Cada Um na Sua Casa",
+        year: "2015",
+        genre: "Animação/Comédia",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTC7ASs-QmjrDuIhEOqL8A9wG9jYw1K4UYLVdzbyh66dA&s=10",
+        link: "https://mega.nz/file/LDoGDByA#1oN2hNWcC4ISBmDYbvEBgLHWXiC2e-X7BpI1jWQ_O2s",
+        desc: "Quando a Terra é invadida pelos Boov, uma raça alienígena em busca de um novo lar, todos os humanos são prontamente realojados enquanto os alienígenas ocupam o planeta. Tip, uma jovem humana corajosa que conseguiu evitar a captura, acaba por conhecer Oh, um Boov banido que acidentalmente enviou um convite de festa para todo o universo, incluindo os seus inimigos. Juntos, esta dupla improvável embarca numa viagem atribulada para salvar o planeta e encontrar a mãe de Tip.",
+        category: "kids",
+type: "movie"
+    },
+    {
+        title: "Um Homem Abandonado",
+        year: "2025",
+        genre: "Drama/Suspense",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6vjN7GDFqgdhTZXp5Rx8wE8zoFYFJekaOIbwW-hlD0w&s=10",
+        link: "https://mega.nz/file/KaogSbib#SCkJqqL_mjWkLMW3Aet1kJY7eelkUXQFCFiQjvyBf5I",
+        desc: "Após um evento traumático que lhe custou tudo, um homem decide isolar-se numa região remota, cortando todos os laços com a civilização. No entanto, a sua solidão é interrompida quando descobre um segredo enterrado naquelas terras que atrai a atenção de pessoas perigosas. Ele é forçado a confrontar o seu passado e a lutar pela sua vida, provando que, mesmo um homem que não tem nada a perder, ainda possui uma vontade inabalável de sobreviver e encontrar justiça.",
+        category: "thriller",
+type: "movie"
+    },
+    {
+        title: "A Casa Monstro",
+        year: "2006",
+        genre: "Animação/Fantasia",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRMaXJ373C-25HMU9bNjNUNzyf7aLUG-gZDCVnV75AFQ&s=10",
+        link: "https://mega.nz/file/yLpGxQYY#UEuxhsu9fvXnvPt6cy68eOtdm5BQGkbL5Vxggc5hsw0",
+        desc: "Três amigos adolescentes descobrem que a casa do vizinho rabugento, o Sr. Nebbercracker, não é apenas um lugar assustador, mas um organismo vivo e faminto que devora qualquer coisa que se aproxime. Como nenhum adulto acredita neles, os jovens precisam de bolar um plano para destruir a casa antes do Halloween, quando centenas de crianças estarão em perigo. O filme mistura suspense e aventura enquanto o grupo explora o interior visceral e sobrenatural da residência.",
+        category: "kids",
+type: "movie"
+    },
+    {
+        title: "Eu Sei o Que Fizeram no Verão Passado",
+        year: "2025",
+        genre: "Terror/Suspense",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEPJHImlSboMsKmvbfDqRgYIrE4YY_anH8W9E_UbfWQw&s=10",
+        link: "https://mega.nz/file/jSZU3CjC#UOCuRj3wqnJfE_14aIzfmP90t4LHyPH3q03M6_he-sQ",
+        desc: "Um grupo de amigos é unido por um segredo fatal após um acidente trágico numa noite de festa. Um ano depois, eles começam a receber mensagens misteriosas e ameaçadoras de alguém que sabe exatamente o que eles fizeram. Um assassino imparável, usando uma capa de pescador e um gancho, começa a persegui-los um a um, transformando as suas vidas num pesadelo sangrento onde a única regra é sobreviver à vingança do passado.",
+        category: "horror",
+type: "movie"
+    },
+    {
+        title: "O Fabricante de Lágrimas",
+        year: "2024",
+        genre: "Romance/Drama",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJXkUQ58oedfFoXiapTmXNv6ypKK9yJ3AECjt59DdxiA&s=10",
+        link: "https://mega.nz/file/LLYjjI7J#uqlCddCm993Zw-mSd4KFsGDw_01r8jUubf1A-ykd4w4",
+        desc: "Nica e Rigel foram criados no mesmo orfanato sombrio, onde circulava a lenda do Fabricante de Lágrimas, um artesão responsável por criar todos os medos e angústias humanos. Quando são adotados pela mesma família, eles precisam de aprender a conviver com o seu passado traumático e a atração intensa e destrutiva que sentem um pelo outro. Entre segredos e descobertas emocionais, eles enfrentam as suas próprias sombras para descobrir se o amor pode realmente curar cicatrizes tão profundas.",
+        category: "drama"
+    },
+    {
+        title: "A Hora do Mal",
+        year: "2025",
+        genre: "Terror",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqMeRfIiWDmxHsMVgwEvofLXLvrHsgW9_NGJzq4NrnVg&s=10",
+        link: "https://mega.nz/file/DSQmjDZT#Hlu5sRCrF9i6UXDMsk6La1NEVw0xclHCMZkmy-qP8go",
+        desc: "Numa pequena cidade onde o tempo parece ter parado, um mal antigo desperta após décadas de silêncio. Vários desaparecimentos misteriosos levam um grupo de investigadores a descobrir uma maldição ligada ao relógio da cidade: cada vez que ele bate fora de hora, uma nova vítima é reclamada por uma entidade sombria. Eles precisam de desvendar o mistério antes que o ponteiro marque a hora final para todos os habitantes, enfrentando visões aterradoras e perigos sobrenaturais.",
+        category: "horror",
+type: "movie"
+    },
+    {
+        title: "A Bruxa dos Mortos: Baghead",
+        year: "2023",
+        genre: "Terror/Suspense",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBuzwZqZuIu-ogDBD0FvvxozyUMQxNX9sNVSQ4FEwocQ&s=10",
+        link: "https://mega.nz/file/nDYFECKK#O_FK-kTAE9gwD6yxwNrjJqoaMIRXSna1M1IXkOMYo7Y",
+        desc: "Iris herda um bar antigo do seu pai e descobre um segredo aterrorizante na cave: Baghead, uma criatura metamórfica que permite que as pessoas falem com entes queridos falecidos, mas com consequências terríveis. Seduzida pela possibilidade de lucro e por pedidos desesperados de estranhos, Iris começa a ignorar as regras de segurança impostas pelo pai. Ela depressa percebe que a entidade tem os seus próprios planos sinistros e que o preço de falar com os mortos pode ser a sua própria alma.",
+        category: "horror",
+type: "movie"
+    }
+];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMovies();
+        });
+        function renderMovies(filterText = "") {
+            const releaseContainer = document.getElementById('scroll-releases');
+            const exclusiveContainer = document.getElementById('scroll-exclusives');
+            const kidsContainer = document.getElementById('scroll-kids');
+            const gridContainer = document.getElementById('all-movies-grid');
+            const favoritesContainer = document.getElementById('scroll-favorites');
+            const favSection = document.getElementById('favorites-section');
+
+            releaseContainer.innerHTML = '';
+            exclusiveContainer.innerHTML = '';
+            kidsContainer.innerHTML = '';
+            gridContainer.innerHTML = '';
+            favoritesContainer.innerHTML = '';
+
+            let hasFavorites = false;
+
+            movies.forEach((movie, index) => {
+                if (filterText && !movie.title.toLowerCase().includes(filterText.toLowerCase())) {
+                    return;
+                }
+
+                const cardHTML = createCardHTML(movie, index);
+                gridContainer.innerHTML += cardHTML;
+
+                if(!filterText) {
+                    if (movie.category === 'release' || movie.year === '2025' || movie.year === '2024') releaseContainer.innerHTML += cardHTML;
+                    if (movie.category === 'exclusive' || movie.type === 'series') exclusiveContainer.innerHTML += cardHTML;
+                    if (movie.category === 'kids' || movie.genre.includes('Animação')) kidsContainer.innerHTML += cardHTML;
+
+                    if (favorites.includes(index)) {
+                        favoritesContainer.innerHTML += cardHTML;
+                        hasFavorites = true;
+                    }
+                }
+            });
+
+            
+            favSection.style.display = hasFavorites && !filterText ? 'block' : 'none';
+        }
+
+        function createCardHTML(movie, index) {
+            const isSeries = movie.type === 'series';
+            const badge = isSeries ? '<div class="tag-series">SÉRIE</div>' : '';
+            return `
+                <div class="movie-card" onclick="openModal(${index})">
+                    ${badge}
+                    <img src="${movie.image}" class="poster" loading="lazy">
+                    <div class="premium-tag">MONACO</div>
+                </div>
+            `;
+        }
+
+        
+        function toggleFavorite() {
+            if (currentMovieIndex === null) return;
+
+
+            const btns = [document.getElementById('btnFavorite'), document.getElementById('btnFavoriteSeries')];
+            
+            let isFav = favorites.includes(currentMovieIndex);
+
+            if (isFav) {
+                // Remover
+                favorites = favorites.filter(id => id !== currentMovieIndex);
+            } else {
+                // Adicionar
+                favorites.push(currentMovieIndex);
+            }
+
+            localStorage.setItem('monacoFavorites', JSON.stringify(favorites));
+
+            updateFavoriteButtons(!isFav);
+            renderMovies(); 
+        }
+
+        function updateFavoriteButtons(isFav) {
+            const btnMovie = document.getElementById('btnFavorite');
+            const btnSeries = document.getElementById('btnFavoriteSeries');
+
+            
+            if(btnMovie) {
+                const icon = btnMovie.querySelector('i');
+                const text = btnMovie.querySelector('span');
+                icon.className = isFav ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+                icon.style.color = isFav ? 'var(--primary)' : 'white';
+                text.innerText = isFav ? "Salvo" : "Lista";
+                btnMovie.style.color = isFav ? 'var(--primary)' : 'white';
+            }
+
+            
+            if(btnSeries) {
+                const icon = btnSeries.querySelector('i');
+                const text = btnSeries.querySelector('span');
+                icon.className = isFav ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+                icon.style.color = isFav ? 'var(--primary)' : 'white';
+                text.innerText = isFav ? "Salvo" : "Salvar";
+                btnSeries.style.color = isFav ? 'var(--primary)' : 'white';
+            }
+        }
+
+        
+        function switchTab(tabName, btnElement) {
+            if(btnElement) {
+                document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+                btnElement.classList.add('active');
+            }
+            document.querySelectorAll('.tab-content').forEach(view => view.classList.remove('active'));
+            document.getElementById('view-' + tabName).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function filterMovies() {
+            const query = document.getElementById('searchInput').value;
+            renderMovies(query);
+        }
+        
+        function filterGrid() {
+            const query = document.getElementById('searchInputGrid').value;
+            renderMovies(query);
+        }
+
+        function openSearch(term) {
+             const moviesBtn = document.querySelectorAll('.nav-item')[1];
+             switchTab('movies', moviesBtn);
+             document.getElementById('searchInputGrid').value = term;
+             filterGrid();
+        }
+
+        
+        function openModal(index) {
+            currentMovieIndex = index;
+            const movie = movies[index];
+            const modal = document.getElementById('movieModal');
+            
+            document.getElementById('modalTitle').innerText = movie.title;
+            document.getElementById('modalYear').innerText = movie.year;
+            document.getElementById('modalGenre').innerText = movie.genre;
+            document.getElementById('modalDesc').innerText = movie.desc;
+            document.getElementById('modalImg').src = movie.image;
+
+            const singleContainer = document.getElementById('single-action-container');
+            const seriesContainer = document.getElementById('series-action-container');
+            const episodesList = document.getElementById('episodesList');
+
+            
+            if (movie.type === 'series') {
+                singleContainer.style.display = 'none';
+                seriesContainer.style.display = 'block';
+                
+                
+                episodesList.innerHTML = '';
+                movie.episodes.forEach(ep => {
+                    episodesList.innerHTML += `
+                        <a href="${ep.link}" target="_blank" class="episode-card">
+                            <div class="episode-info">
+                                <span class="ep-title">${ep.name}</span>
+                                <span class="ep-sub">Temporada 1</span>
+                            </div>
+                            <div class="ep-play-icon">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                        </a>
+                    `;
+                });
+
+            } else {
+                
+                singleContainer.style.display = 'flex';
+                seriesContainer.style.display = 'none';
+                document.getElementById('modalLink').href = movie.link;
+            }
+
+
+            updateFavoriteButtons(favorites.includes(index));
+
+            modal.classList.add('open');
+        }
+
+        function closeModal(event) {
+            if (event.target.id === 'movieModal' || event.target.classList.contains('modal-close')) {
+                document.getElementById('movieModal').classList.remove('open');
+                currentMovieIndex = null;
+            }
+        }
+    </script>
+</body>
+</html>
