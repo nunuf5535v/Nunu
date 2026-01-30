@@ -171,6 +171,53 @@
         .movie-grid .movie-card { flex: none; width: 100%; }
         .movie-grid .poster { width: 100%; height: auto; aspect-ratio: 2/3; }
 
+/* Player Interno Estilo */
+.player-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 9999;
+    display: none; /* Começa escondido */
+    flex-direction: column;
+}
+
+.player-overlay.active {
+    display: flex;
+}
+
+.close-player {
+    background: rgba(0,0,0,0.8);
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: left;
+    border-bottom: 1px solid #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.video-container {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+#internalPlayer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
         /* Nav Bar */
         .bottom-nav {
             position: fixed;
@@ -410,6 +457,11 @@
         <div class="movie-scroller" id="scroll-exclusives"></div>
 
         <div class="section-title">
+            <i class="fa-solid fa-film"></i> Monaco ofc
+        </div>
+        <div class="movie-scroller" id="scroll-oficiall"></div>
+
+        <div class="section-title">
             <i class="fa-solid fa-child-reaching"></i> Kids & Família
         </div>
         <div class="movie-scroller" id="scroll-kids"></div>
@@ -463,8 +515,8 @@
         <div style="padding: 20px;">
             <div style="background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%); padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 25px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
                 <div style="width: 70px; height: 70px; background: var(--primary); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 0 20px rgba(229, 9, 20, 0.5);">👑</div>
-                <h3 style="font-size: 20px;">Membro VIP Monaco</h3>
-                <p style="color: #666; font-size: 13px; margin-top: 5px;">Acesso Ilimitado • 4K HDR</p>
+                <h3 style="font-size: 20px;">Membro</h3>
+                <p style="color: #666; font-size: 13px; margin-top: 5px;">TODOS FILME OFICIAL, É FILMES QUE LEVA PRO FILME DIRETO, SEM SER MEGA.ZN OU COISA DO TIPO</p>
             </div>
 
              <div style="background: #1a1a1a; padding: 25px; border-radius: 20px; border: 1px solid #222;">
@@ -524,15 +576,16 @@
 
             <p id="modalDesc" style="margin: 25px 0; font-size: 14px; color: #ccc; line-height: 1.6;">Descrição...</p>
             
-            <div id="single-action-container" style="display: flex; gap: 10px;">
-                <a href="#" id="modalLink" target="_blank" class="btn-watch">
-                    <i class="fa-solid fa-play"></i> ASSISTIR
-                </a>
-                <button class="btn-list-add" onclick="toggleFavorite()" id="btnFavorite">
-                    <i class="fa-regular fa-heart"></i>
-                    <span>Lista</span>
-                </button>
-            </div>
+<div id="single-action-container" style="display: flex; gap: 10px;">
+    <a href="#" id="modalLink" target="_blank" rel="noreferrer" class="btn-watch">
+        <i class="fa-solid fa-play"></i> ASSISTIR
+    </a>
+    <button class="btn-list-add" onclick="toggleFavorite()" id="btnFavorite">
+        <i class="fa-regular fa-heart"></i>
+        <span>Lista</span>
+    </button>
+</div>
+
 
             <div id="series-action-container" class="episodes-container">
                 <div class="episodes-header">
@@ -553,6 +606,14 @@
             </div>
         </div>
     </div>
+<div id="playerOverlay" class="player-overlay">
+    <button class="close-player" onclick="closePlayer()">
+        <i class="fa-solid fa-xmark"></i> Fechar Player
+    </button>
+    <div class="video-container">
+        <iframe id="internalPlayer" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+</div>
 
     <script>
        
@@ -615,9 +676,9 @@ type: "movie"
         year: "2016",
         genre: "Animação/Família",
         image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDr_ybSdLRFGunNQv7JjRLq7d14IebOCBWoJit1AK7OA&s=10",
-        link: "https://mega.nz/file/0qoVQDxL#sGCUYUmkH-3gnwqKBLWwhOYwWMeeyJP5fdy42TRk3WY",
+        link: "https://pomf2.lain.la/f/njjmx5j.mp4",
         desc: "Uma pequena ave faminta, que vive em uma praia, se aventura a sair de seu ninho pela primeira vez para procurar comida na areia. O único problema é que a comida está enterrada onde as ondas quebram na costa. Com a ajuda de um novo amigo, ela tenta superar seus medos para garantir sua próxima refeição.",
-        category: "animation",
+        category: "oficiall",
         type: "short"
     },
     {
@@ -1014,7 +1075,27 @@ type: "movie"
         desc: "Iris herda um bar antigo do seu pai e descobre um segredo aterrorizante na cave: Baghead, uma criatura metamórfica que permite que as pessoas falem com entes queridos falecidos, mas com consequências terríveis. Seduzida pela possibilidade de lucro e por pedidos desesperados de estranhos, Iris começa a ignorar as regras de segurança impostas pelo pai. Ela depressa percebe que a entidade tem os seus próprios planos sinistros e que o preço de falar com os mortos pode ser a sua própria alma.",
         category: "horror",
 type: "movie"
-    }
+    },
+                {
+                title: "It: Bem-Vindo a Derry",
+                year: "2025",
+                genre:`Terror / Suspense\n\nEP: 6, 7 E 8, SÃO DIRETO PARA O EPISÓDIO`,
+                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXdTjK9X06FJRBXx6Zxt6H0NHtFDVowzOe3FovviFIJQ&s=10",
+                desc: "Na década de 1960, eventos estranhos acontecem na cidade de Derry ligados ao palhaço Pennywise, uma figura misteriosa que assombra o local. A série explora as origens da maldição e o surgimento da entidade.",
+                category: "exclusive",
+                type: "series",
+                episodes: [
+                    { name: "PILOTO: Episódio 1", link: "https://mega.nz/file/Njxw0CrS#a2Jtqrg_UabzUOEgam_w-bFWkPIfCtCnFNdVVFCKXas" },
+                    { name: "A coisa na escuridão: Episódio 2", link: "https://mega.nz/file/0zoHXLhT#_vzg7JVlvOZgcK9_WcfRDK6haQS0bC5CeLgfcFXJzQY" },
+                    { name: "Agora você o vê: Episódio 3", link: "https://mega.nz/file/d3w0GKLR#TsSLqq-QulLEMG6rYeBPzZuOvuqOLPYzrNAGmGakJTU" },
+                    { name: "O grande Aparato: Episódio 4", link: "https://mega.nz/file/ZuY0jTaA#Xn7nbLH_mhYJompksJnRufRdYldjeR5B6zLDu9WtgaE" },
+                    { name: "Rua Neibolt, 29: Episódio 5", link: "https://mega.nz/file/42JhjZbC#mAiD-M800wApc2gfnwLHTY-lxklacWZmn__Sal-kqGU" },
+                    { name: "em nome do pai..: Episódio 6", link: "https://pomf2.lain.la/f/3tij066.mp4" },
+                    { name: "O Black Spot: Episódio 7", link: "https://pomf2.lain.la/f/cr6lig44.mp4" },
+                    { name: "Fogo de Inverno: Episódio 8", link: "https://pomf2.lain.la/f/073tip7u.mp4" }
+                ]
+            },
+
 ];
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -1023,6 +1104,7 @@ type: "movie"
         function renderMovies(filterText = "") {
             const releaseContainer = document.getElementById('scroll-releases');
             const exclusiveContainer = document.getElementById('scroll-exclusives');
+            const oficialMnc = document.getElementById('scroll-oficiall');
             const kidsContainer = document.getElementById('scroll-kids');
             const gridContainer = document.getElementById('all-movies-grid');
             const favoritesContainer = document.getElementById('scroll-favorites');
@@ -1030,6 +1112,7 @@ type: "movie"
 
             releaseContainer.innerHTML = '';
             exclusiveContainer.innerHTML = '';
+            oficialMnc.innerHTML = '';
             kidsContainer.innerHTML = '';
             gridContainer.innerHTML = '';
             favoritesContainer.innerHTML = '';
@@ -1047,6 +1130,7 @@ type: "movie"
                 if(!filterText) {
                     if (movie.category === 'release' || movie.year === '2025' || movie.year === '2024') releaseContainer.innerHTML += cardHTML;
                     if (movie.category === 'exclusive' || movie.type === 'series') exclusiveContainer.innerHTML += cardHTML;
+                    if (movie.category === 'oficiall') oficialMnc.innerHTML += cardHTML;
                     if (movie.category === 'kids' || movie.genre.includes('Animação')) kidsContainer.innerHTML += cardHTML;
 
                     if (favorites.includes(index)) {
@@ -1150,53 +1234,54 @@ type: "movie"
 
         
         function openModal(index) {
-            currentMovieIndex = index;
-            const movie = movies[index];
-            const modal = document.getElementById('movieModal');
-            
-            document.getElementById('modalTitle').innerText = movie.title;
-            document.getElementById('modalYear').innerText = movie.year;
-            document.getElementById('modalGenre').innerText = movie.genre;
-            document.getElementById('modalDesc').innerText = movie.desc;
-            document.getElementById('modalImg').src = movie.image;
+    currentMovieIndex = index;
+    const movie = movies[index];
+    const modal = document.getElementById('movieModal');
+    
+    document.getElementById('modalTitle').innerText = movie.title;
+    document.getElementById('modalYear').innerText = movie.year;
+    document.getElementById('modalGenre').innerText = movie.genre;
+    document.getElementById('modalDesc').innerText = movie.desc;
+    document.getElementById('modalImg').src = movie.image;
 
-            const singleContainer = document.getElementById('single-action-container');
-            const seriesContainer = document.getElementById('series-action-container');
-            const episodesList = document.getElementById('episodesList');
+    const singleContainer = document.getElementById('single-action-container');
+    const seriesContainer = document.getElementById('series-action-container');
+    const episodesList = document.getElementById('episodesList');
+    const modalLink = document.getElementById('modalLink');
 
-            
-            if (movie.type === 'series') {
-                singleContainer.style.display = 'none';
-                seriesContainer.style.display = 'block';
-                
-                
-                episodesList.innerHTML = '';
-                movie.episodes.forEach(ep => {
-                    episodesList.innerHTML += `
-                        <a href="${ep.link}" target="_blank" class="episode-card">
-                            <div class="episode-info">
-                                <span class="ep-title">${ep.name}</span>
-                                <span class="ep-sub">Temporada 1</span>
-                            </div>
-                            <div class="ep-play-icon">
-                                <i class="fa-solid fa-play"></i>
-                            </div>
-                        </a>
-                    `;
-                });
-
-            } else {
-                
-                singleContainer.style.display = 'flex';
-                seriesContainer.style.display = 'none';
-                document.getElementById('modalLink').href = movie.link;
-            }
-
-
-            updateFavoriteButtons(favorites.includes(index));
-
-            modal.classList.add('open');
+    if (movie.type === 'series') {
+        singleContainer.style.display = 'none';
+        seriesContainer.style.display = 'block';
+        
+        episodesList.innerHTML = '';
+        movie.episodes.forEach(ep => {
+            episodesList.innerHTML += `
+                <a href="${ep.link}" target="_blank" rel="noreferrer" class="episode-card">
+                    <div class="episode-info">
+                        <span class="ep-title">${ep.name}</span>
+                        <span class="ep-sub">Temporada 1</span>
+                    </div>
+                    <div class="ep-play-icon">
+                        <i class="fa-solid fa-play"></i>
+                    </div>
+                </a>
+            `;
+        });
+    } else {
+        // CONFIGURAÇÃO PARA FILMES
+        singleContainer.style.display = 'flex';
+        seriesContainer.style.display = 'none';
+        
+        // Garante que o link seja injetado corretamente no botão
+        if (movie.link) {
+            modalLink.setAttribute('href', movie.link);
         }
+    }
+
+    updateFavoriteButtons(favorites.includes(index));
+    modal.classList.add('open');
+}
+
 
         function closeModal(event) {
             if (event.target.id === 'movieModal' || event.target.classList.contains('modal-close')) {
@@ -1204,6 +1289,7 @@ type: "movie"
                 currentMovieIndex = null;
             }
         }
+        
     </script>
 </body>
-    </html>
+                </html>
